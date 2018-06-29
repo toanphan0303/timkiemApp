@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { View, Text, ActivityIndicator } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import { View, ActivityIndicator, Dimensions } from 'react-native';
+import { MapView } from 'expo';
 import { connect } from 'react-redux';
-import { Button } from 'react-native-elements';
-import zipToLatLng from 'zipcodes';
-
+import { Button, Header } from 'react-native-elements';
+import ZipMarker from './ZipMarker';
+import SearchTabBar from './SearchTabBar';
 import * as actions from '../actions';
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 class Map extends Component {
   state = {
@@ -18,22 +19,58 @@ class Map extends Component {
       longitudeDelta: 0.0421,
     },
     mapLoaded: false,
-    jobZip: []
+    searching: false
   }
-  componentDidMount() {
+  componentDidMount = async () => {
     this.setState({ mapLoaded: true });
+    const { latitude, longitude } = this.state.region;
+    this.setState({ searching: true });
+    this.props.fetchRoomsAmountInZip(latitude, longitude);
+    this.setState({ searching: false });
   }
 
-  onRegionChangeComplete = async (region) => {
+  onRegionChangeComplete = (region) => {
     this.setState({ region });
   }
-  onButtonPress() {
-    this.props.fetchRooms();
+
+  onButtonSearchPress = async () => {
+    const { latitude, longitude } = this.state.region;
+    this.setState({ searching: true });
+    // const radius = this.getBoundsRadius();
+    await this.props.fetchRoomsAmountInZip(latitude, longitude);
+    this.setState({ searching: false });
   }
-  renderMarkers() {
-    this.props.roomsZip.map(({ zip, amount }) => {
-      const location = zipToLatLng.lookup(parseInt(zip, 10));
-      console.log(location);
+
+  onPressMarker(zip) {
+    this.props.fetchRoomsInSingleZip(zip, () => {
+      this.props.navigation.navigate('roomList');
+    });
+  }
+  onPressList() {
+    const { zip, state } = this.props.roomsZips;
+    this.props.fetchRoomInMultiZips(zip, state, () => {
+      this.props.navigation.navigate('roomList');
+    });
+  }
+  getBoundsRadius() {
+    const { longitudeDelta } = this.state.region;
+    return parseInt((longitudeDelta * 69), 10);
+  }
+  renderRoomZips() {
+    return this.props.roomsZips.data.map(({ latitude, longitude, Count, zip_code }) => {
+      const coords = { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
+      return (
+        <MapView.Marker
+          key={zip_code}
+          coordinate={coords}
+          onPress={() => this.onPressMarker(zip_code)}
+          tracksViewChanges={false}
+        >
+          <ZipMarker
+            amount={Count.toString()}
+          />
+        </MapView.Marker>
+      );
     });
   }
   render() {
@@ -46,20 +83,28 @@ class Map extends Component {
     }
     return (
       <View style={{ flex: 1 }}>
+        <Header
+          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, paddingTop: 5, paddingBottom: -5 }}
+          innerContainerStyles={{ backgroundColor: 'white', justifyContent: 'space-around', alignItems: 'flex-start' }}
+          rightComponent={<Button title='List' backgroundColor='white' buttonStyle={{ paddingTop: 15 }} color='black' onPress={this.onPressList.bind(this)}/>}
+          leftComponent={<SearchTabBar />}
+        />
         <MapView
-          provider={PROVIDER_GOOGLE}
           style={{ flex: 1 }}
           region={this.state.region}
           onRegionChangeComplete={this.onRegionChangeComplete}
+          minZoomLevel={12}
+          maxZoomLevel={14}
         >
-          {!_.isEmpty(this.props.roomsZip) && this.renderMarkers.bind(this)}
+          {this.props.roomsZips && !_.isEmpty(this.props.roomsZips) && this.renderRoomZips()}
         </MapView>
         <View>
           <Button
-            large
+            small
             title="Search this area"
-            icon={{ name: 'search' }}
-            onPress={this.onButtonPress.bind(this)}
+            onPress={this.onButtonSearchPress.bind(this)}
+            loading={this.state.searching}
+            disabled={this.state.searching}
           />
         </View>
       </View>
@@ -67,8 +112,18 @@ class Map extends Component {
   }
 }
 
-const mapStateToProps = ({ roomsZip }) => {
-  return { roomsZip: roomsZip.results };
+const styles = {
+  container: {
+    flexDirection: 'row',
+    marginTop: 23,
+    width: SCREEN_WIDTH,
+  },
+  listButton: {
+    marginTop: 4,
+  }
+};
+const mapStateToProps = ({ roomsZips }) => {
+  return { roomsZips };
 };
 
 export default connect(mapStateToProps, actions)(Map);

@@ -1,24 +1,23 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
+import { View } from 'react-native';
+import Map from '../components/Map';
 
 class Rooms extends Component {
   static navigationOptions = {
     title: 'Rooms',
     tabBarIcon: ({ tintColor }) => {
         return (
-          <Icon name='room' size={25} color={tintColor} />
+          <Icon name='home' size={25} color={tintColor} />
         );
     },
   };
   render() {
     return (
-      <View>
-        <Text>Rooms Components</Text>
-        <Text>Rooms Components</Text>
-        <Text>Rooms Components</Text>
-        <Text>Rooms Components</Text>
-        <Text>Rooms Components</Text>
+      <View style={{ flex: 1 }}>
+        <Map
+          navigation={this.props.navigation}
+        />
       </View>
     );
   }

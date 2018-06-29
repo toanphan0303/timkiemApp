@@ -1,0 +1,14 @@
+{
+  "name": "chi Hanh",
+  "description":"Nha rong rai, thoang mat, yen tinh, co wifi mien phi, parking rong rai, an ninh tot, gan tiem an Viet, cho Vinh Phat va bus, (rat gan Sacramento college). Cho thue 1 phong master, thoang mat voi cua so nhin ra vuon sau. Nha khong co tre em. Phong yen tinh, day du tien nghi va rat ly tuong cho nu sinh. ",
+  "zip":"95123",
+  "city":"San Jose",
+  "state":"CA",
+  "phone":"6692001899",
+  "TimeStamp":"1529373280",
+  "rooms":[{
+    "room_type":"master",
+    "payment":"800",
+    "images":""
+  }]
+},
