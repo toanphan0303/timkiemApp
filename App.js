@@ -2,20 +2,33 @@ import React from 'react';
 import { StyleSheet, View, Animated, Easing } from 'react-native';
 import { createBottomTabNavigator, createStackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
+import { Icon } from 'react-native-elements';
 import store from './store';
 import Jobs from './screens/Jobs';
 import Rooms from './screens/Rooms';
 import RoomList from './screens/RoomList';
 import RoomDetail from './screens/RoomDetail';
 import MyProfile from './screens/MyProfile';
+import RoomSearch from './screens/RoomSearch';
+import Login from './screens/Login';
+import SignUp from './screens/SignUp';
 
 
 const MainNavigator = createBottomTabNavigator({
   rooms: {
+    navigationOptions: {
+        title: 'Home',
+        tabBarIcon: ({ tintColor }) => {
+          return (
+            <View><Icon name="home" size={24} color={tintColor} /></View>
+          );
+        }
+      },
     screen: createStackNavigator({
       rooms: { screen: Rooms },
       roomList: { screen: RoomList },
-      roomDetail: { screen: RoomDetail }
+      roomDetail: { screen: RoomDetail },
+      roomSearch: { screen: RoomSearch }
     }, {
       headerMode: 'none',
       transitionConfig: () => ({
@@ -63,7 +76,47 @@ const MainNavigator = createBottomTabNavigator({
     })
   },
   jobs: { screen: Jobs },
-  myProfile: { screen: MyProfile }
+  myProfile: {
+    navigationOptions: {
+        title: 'My Profile',
+        tabBarIcon: ({ tintColor }) => {
+          return (
+            <View><Icon name="person" size={24} color={tintColor} /></View>
+          );
+        }
+      },
+    screen: createStackNavigator({
+      myProfile: { screen: MyProfile },
+      login: { screen: Login },
+      signup: { screen: SignUp }
+    }, {
+      headerMode: 'none',
+      transitionConfig: () => ({
+        transitionSpec: {
+          duration: 750,
+          easing: Easing.out(Easing.poly(4)),
+          timing: Animated.timing,
+        },
+        screenInterpolator: sceneProps => {
+          const { layout, position, scene } = sceneProps;
+          const { index } = scene;
+
+          const height = layout.initHeight;
+          const translateY = position.interpolate({
+            inputRange: [index - 1, index, index + 1],
+            outputRange: [height, 0, 0],
+          });
+
+          const opacity = position.interpolate({
+            inputRange: [index - 1, index - 0.99, index],
+            outputRange: [0, 1, 1],
+          });
+
+          return { opacity, transform: [{ translateY }] };
+        },
+      }),
+    })
+  },
 },
 {
   navigationOptions: {
@@ -72,7 +125,11 @@ const MainNavigator = createBottomTabNavigator({
       inactiveTintColor: 'gray',
       labelStyle: {
         fontSize: 12
-      }
+      },
+      tabBarLabel: 'Home',
+      tabBarIcon: ({ tintColor }) => (
+        <View><Icon name="home" size={24} color={tintColor} /></View>
+      )
     }
   },
 });

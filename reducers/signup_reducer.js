@@ -1,15 +1,15 @@
 import {
-  FETCH_ROOMS_IN_ZIP,
-  FETCH_ROOMS_IN_MULTI_ZIPS
+  ERROR_SIGN_UP,
+  SIGN_UP_SUCCESS
 } from '../actions/types';
 
-const INIATIAL_STATE = [];
+const INIATIAL_STATE = {};
 
 export default function (state = INIATIAL_STATE, action) {
   switch (action.type) {
-    case FETCH_ROOMS_IN_ZIP:
+    case ERROR_SIGN_UP:
       return action.payload;
-    case FETCH_ROOMS_IN_MULTI_ZIPS:
+    case SIGN_UP_SUCCESS:
       return action.payload;
     default:
       return state;

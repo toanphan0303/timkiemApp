@@ -1,17 +1,23 @@
 import React, { Component } from 'react';
 import { SearchBar } from 'react-native-elements';
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
 class SearchTabBar extends Component {
+  onPressSearchBar() {
+    this.props.navigation.navigate('roomSearch');
+  }
   render() {
     return (
-      <View>
+      <TouchableOpacity onPress={this.onPressSearchBar.bind(this)} style={{ backgroundColor: 'black', zIndex: 10}}>
+        <View>
         <SearchBar
+          onFocus={this.onPressSearchBar.bind(this)}
           lightTheme
-          placeholder='City, ZIP'
+          placeholder='City'
           containerStyle={style}
         />
-      </View>
+        </View>
+      </TouchableOpacity>
     );
   }
 }

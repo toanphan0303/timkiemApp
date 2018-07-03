@@ -52,16 +52,16 @@ class RoomDetail extends Component {
             </Card>
             <Card style={{ flexDirection: 'column', justifyContent: 'space-around', alignContent: 'space-around' }}>
               <View>
-                <TouchableOpacity onPress={() => Communications.phonecall('0123456789', true)}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'flex-start'  }}>
+                <TouchableOpacity onPress={() => Communications.phonecall(phone, true)}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
                     <Icon name='phone' />
                     <Text style={{ paddingLeft: 20 }}>Make phonecall: {phone}</Text>
                   </View>
                 </TouchableOpacity>
               </View>
               <View style={{ marginTop: 10}}>
-                <TouchableOpacity onPress={() => Communications.text('17143512925')}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'flex-start'  }}>
+                <TouchableOpacity onPress={() => Communications.text(phone)}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
                     <Icon name='message' />
                     <Text style={{ paddingLeft: 20 }} >Send a text/iMessage</Text>
                   </View>
@@ -96,9 +96,9 @@ const styles = StyleSheet.create({
   },
   shawdowImage: {
     shadowOpacity: 1,
-    shadowRadius: 4,
-    shadowColor: 'red',
-    shadowOffset: { width: 0, height: 0 }
+    shadowRadius: 3,
+    shadowColor: 'gray',
+    shadowOffset: { width: 5, height: 5 }
   }
 });
 

@@ -11,6 +11,7 @@ import * as actions from '../actions';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 class Map extends Component {
+  // IOS does not have initial location && map does not zoom in or our
   state = {
     region: {
       latitude: 37.3382,
@@ -82,15 +83,16 @@ class Map extends Component {
       );
     }
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
         <Header
           outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, paddingTop: 5, paddingBottom: -5 }}
           innerContainerStyles={{ backgroundColor: 'white', justifyContent: 'space-around', alignItems: 'flex-start' }}
           rightComponent={<Button title='List' backgroundColor='white' buttonStyle={{ paddingTop: 15 }} color='black' onPress={this.onPressList.bind(this)}/>}
-          leftComponent={<SearchTabBar />}
+          leftComponent={<SearchTabBar navigation={this.props.navigation} />}
         />
         <MapView
           style={{ flex: 1 }}
+          provider="google"
           region={this.state.region}
           onRegionChangeComplete={this.onRegionChangeComplete}
           minZoomLevel={12}

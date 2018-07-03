@@ -48,14 +48,14 @@ class RoomList extends Component {
           />
             <View style={styles.overImage}>
               <View stye={{ flex: 1 }}>
-                <View style={{ flexDirection: 'column' }}>
+                <View style={{ flexDirection: 'column', paddingLeft: 20 }}>
                   <Text>$Mo {price}</Text>
                   <Text>{address}</Text>
                   <Text>Zip Code: {zip}</Text>
                 </View>
               </View>
-              <View stye={{ flex: 3 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+              <View stye={{ flex: 3}}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginRight: 50  }}>
                   <View>
                     <TouchableOpacity
                       onPress={() => console.log('image press')}
@@ -78,7 +78,7 @@ class RoomList extends Component {
           outerContainerStyles={{ height: 65, backgroundColor: 'white', marginTop: 25, paddingTop: 5, paddingBottom: -5 }}
           innerContainerStyles={{ backgroundColor: 'white', alignItems: 'flex-start', justifyContent: 'space-around' }}
           rightComponent={<Button title='Map' backgroundColor='white' buttonStyle={{ paddingTop: 15 }} color='black' onPress={this.onPressMap.bind(this)} />}
-          leftComponent={<SearchBar />}
+          leftComponent={<SearchBar navigation={this.props.navigation} />}
         />
         <ScrollView style={{ flex: 1 }}>
           {this.renderRoomList()}
@@ -103,13 +103,13 @@ const styles = {
     flexDirection: 'row',
     paddingTop: 5,
     width: SCREEN_WIDTH,
-    justifyContent: 'space-around'
+    justifyContent: 'space-between'
   },
   shawdowImage: {
     shadowOpacity: 1.0,
-    shadowRadius: 5,
-    shadowColor: 'black',
-    shadowOffset: { width: 10, height: 10 }
+    shadowRadius: 2,
+    shadowColor: 'gray',
+    shadowOffset: { width: 3, height: 3 }
   }
 };
 const mapStateToProps = ({ roomsInZips }) => {
