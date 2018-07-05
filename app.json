@@ -3,6 +3,7 @@
     "name": "timkiem",
     "description": "This project is really great.",
     "slug": "timkiem",
+    "scheme":"timkiem",
     "privacy": "public",
     "sdkVersion": "28.0.0",
     "platforms": ["ios", "android"],

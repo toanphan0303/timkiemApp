@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Animated, Easing } from 'react-native';
+import { StyleSheet, View, Animated, Easing, Platform } from 'react-native';
 import { createBottomTabNavigator, createStackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import { Icon } from 'react-native-elements';
@@ -13,7 +13,41 @@ import RoomSearch from './screens/RoomSearch';
 import Login from './screens/Login';
 import SignUp from './screens/SignUp';
 
+const ProfileTab = createStackNavigator({
+  myProfile: {
+    screen: MyProfile,
+    path: 'myprofile'
+  },
+  login: { screen: Login },
+  signup: { screen: SignUp }
+}, {
+  headerMode: 'none',
+  transitionConfig: () => ({
+    transitionSpec: {
+      duration: 750,
+      easing: Easing.out(Easing.poly(4)),
+      timing: Animated.timing,
+    },
+    screenInterpolator: sceneProps => {
+      const { layout, position, scene } = sceneProps;
+      const { index } = scene;
 
+      const height = layout.initHeight;
+      const translateY = position.interpolate({
+        inputRange: [index - 1, index, index + 1],
+        outputRange: [height, 0, 0],
+      });
+
+      const opacity = position.interpolate({
+        inputRange: [index - 1, index - 0.99, index],
+        outputRange: [0, 1, 1],
+      });
+
+      return { opacity, transform: [{ translateY }] };
+    },
+  }),
+});
+const prefixProfile = Platform.OS == 'android' ? 'timkiem://timkiem/mainprofile/' : 'timkiem://mainprofile/';
 const MainNavigator = createBottomTabNavigator({
   rooms: {
     navigationOptions: {
@@ -77,45 +111,15 @@ const MainNavigator = createBottomTabNavigator({
   },
   jobs: { screen: Jobs },
   myProfile: {
+    screen: () => (<ProfileTab uriPrefix={prefixProfile} />),
     navigationOptions: {
-        title: 'My Profile',
-        tabBarIcon: ({ tintColor }) => {
-          return (
-            <View><Icon name="person" size={24} color={tintColor} /></View>
-          );
-        }
-      },
-    screen: createStackNavigator({
-      myProfile: { screen: MyProfile },
-      login: { screen: Login },
-      signup: { screen: SignUp }
-    }, {
-      headerMode: 'none',
-      transitionConfig: () => ({
-        transitionSpec: {
-          duration: 750,
-          easing: Easing.out(Easing.poly(4)),
-          timing: Animated.timing,
-        },
-        screenInterpolator: sceneProps => {
-          const { layout, position, scene } = sceneProps;
-          const { index } = scene;
-
-          const height = layout.initHeight;
-          const translateY = position.interpolate({
-            inputRange: [index - 1, index, index + 1],
-            outputRange: [height, 0, 0],
-          });
-
-          const opacity = position.interpolate({
-            inputRange: [index - 1, index - 0.99, index],
-            outputRange: [0, 1, 1],
-          });
-
-          return { opacity, transform: [{ translateY }] };
-        },
-      }),
-    })
+      title: 'My Profile',
+      tabBarIcon: ({ tintColor }) => {
+        return (
+          <View><Icon name="person" size={24} color={tintColor} /></View>
+        );
+      }
+    },
   },
 },
 {
@@ -133,13 +137,13 @@ const MainNavigator = createBottomTabNavigator({
     }
   },
 });
-
+const prefix = Platform.OS === 'android' ? 'timkiem://timkiem/' : 'timkiem://';
 export default class App extends React.Component {
   render() {
     return (
       <Provider store={store}>
         <View style={styles.container}>
-          <MainNavigator />
+          <MainNavigator uriPrefix={prefix} />
         </View>
       </Provider>
     );

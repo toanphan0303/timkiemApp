@@ -35,6 +35,12 @@ class SignUp extends Component {
       this.props.navigation.navigate('myProfile');
     });
   }
+  facebookSignOut() {
+    this.props.facebookSignOut();
+  }
+  handleFaceBookAuth() {
+    this.props.facebookSignUp();
+  }
   checkInputFirstName() {
     const { firstName } = this.state;
     if (firstName.length === 0) {
@@ -52,7 +58,7 @@ class SignUp extends Component {
       this.formInputLastName.shake();
       return this.setState({ errorLastName: ERROR_MESSAGE.emptyError });
     } else if (!NAME_PATTERN.test(lastName)) {
-      this.formInputFirstName.shake();
+      this.formInputLastName.shake();
       return this.setState({ errorLastName: ERROR_MESSAGE.errorName });
     }
       return this.setState({ errorLastName: null });
@@ -132,12 +138,18 @@ class SignUp extends Component {
               title='Sign Up With Facebook'
               icon={{ name: 'facebook-square', type: 'font-awesome' }}
               backgroundColor='rgb(59, 89, 152)'
+              onPress={this.handleFaceBookAuth.bind(this)}
             />
             <Button
               buttonStyle={{ marginTop: 10 }}
               title='Sign Up With Google'
               icon={{ name: 'google', type: 'font-awesome' }}
               backgroundColor='rgb(72, 133, 237)'
+            />
+            <Button
+              title='Log out'
+              backgroundColor='rgb(59, 89, 152)'
+              onPress={this.facebookSignOut.bind(this)}
             />
           </View>
         </View>
