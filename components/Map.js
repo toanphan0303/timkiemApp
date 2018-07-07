@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+import { material } from 'react-native-typography';
 import { View, ActivityIndicator, Dimensions } from 'react-native';
 import { MapView } from 'expo';
 import { connect } from 'react-redux';
@@ -107,6 +108,9 @@ class Map extends Component {
             onPress={this.onButtonSearchPress.bind(this)}
             loading={this.state.searching}
             disabled={this.state.searching}
+            icon={{ name: 'search', type: 'font-awsome' }}
+            backgroundColor='#008CBA'
+            buttonStyle={styles.buttonStyle}
           />
         </View>
       </View>
@@ -122,7 +126,11 @@ const styles = {
   },
   listButton: {
     marginTop: 4,
-  }
+  },
+  buttonStyle: {
+    shadowOpacity: 1.0,
+    borderRadius: 5,
+  },
 };
 const mapStateToProps = ({ roomsZips }) => {
   return { roomsZips };

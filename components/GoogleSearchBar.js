@@ -67,7 +67,7 @@ class SearchTabBar extends Component {
           </View>
           <View style={{flex: 2, paddingLeft: 20}}>
             <GooglePlacesAutocomplete
-              placeholder='City'
+              placeholder='City or Zip code'
               minLength={2}
               autoFocus={true}
               returnKeyType={'search'}

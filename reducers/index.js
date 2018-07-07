@@ -3,10 +3,12 @@ import roomsZips from './rooms_amount_reducer';
 import roomsInZips from './rooms_reducer';
 import roomDetail from './room_detail_reducer';
 import signupReducer from './signup_reducer';
+import user from './auth_reducer';
 
 export default combineReducers({
   roomsZips,
   roomsInZips,
   roomDetail,
-  signupReducer
+  signupReducer,
+  user
 });

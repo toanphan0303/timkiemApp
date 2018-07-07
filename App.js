@@ -12,6 +12,9 @@ import MyProfile from './screens/MyProfile';
 import RoomSearch from './screens/RoomSearch';
 import Login from './screens/Login';
 import SignUp from './screens/SignUp';
+import RoomPost from './screens/RoomPost';
+import RoomPostSummary from './screens/RoomPostSummary';
+import RoomFavorite from './screens/RoomFavorite';
 
 const ProfileTab = createStackNavigator({
   myProfile: {
@@ -19,7 +22,9 @@ const ProfileTab = createStackNavigator({
     path: 'myprofile'
   },
   login: { screen: Login },
-  signup: { screen: SignUp }
+  signup: { screen: SignUp },
+  roomFavorite: { screen: RoomFavorite },
+  roomPostSummary: { screen: RoomPostSummary },
 }, {
   headerMode: 'none',
   transitionConfig: () => ({
@@ -110,6 +115,7 @@ const MainNavigator = createBottomTabNavigator({
     })
   },
   jobs: { screen: Jobs },
+  roomPost: { screen: RoomPost },
   myProfile: {
     screen: () => (<ProfileTab uriPrefix={prefixProfile} />),
     navigationOptions: {

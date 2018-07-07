@@ -1,8 +1,18 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { connect } from 'react-redux';
+import { material } from 'react-native-typography';
 import _ from 'lodash';
-import { Button, FormLabel, FormInput, FormValidationMessage, Card, Text, Icon } from 'react-native-elements';
+import {
+  Button,
+  FormLabel,
+  FormInput,
+  FormValidationMessage,
+  Card,
+  Text,
+  Icon,
+  Header
+} from 'react-native-elements';
 import * as actions from '../actions';
 
 const ERROR_MESSAGE = {
@@ -31,15 +41,17 @@ class SignUp extends Component {
   }
   onPressSubmit() {
     const { email, password, firstName, lastName } = this.state;
-    this.props.signUpCognitoPool(email, password, firstName, lastName, () => {
+    this.props.signUpCognitoPool('signup', email, password, firstName, lastName, () => {
       this.props.navigation.navigate('myProfile');
     });
   }
-  facebookSignOut() {
-    this.props.facebookSignOut();
+  onPressLogInPage() {
+    this.props.navigation.navigate('login');
   }
   handleFaceBookAuth() {
-    this.props.facebookSignUp();
+    this.props.facebookAuth('signup', () => {
+      this.props.navigation.navigate('myProfile');
+    });
   }
   checkInputFirstName() {
     const { firstName } = this.state;
@@ -131,25 +143,30 @@ class SignUp extends Component {
     const submitEnable = this.ableToSubmit();
     const { signupReducer } = this.props;
     return (
-      <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps='handled'>
-        <View style={{ marginTop: 50 }}>
+      <ScrollView style={{ flex: 1, backgroundColor: 'white' }} keyboardShouldPersistTaps='handled'>
+        <Header
+          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, height: 60 }}
+          innerContainerStyles={{ backgroundColor: 'white' }}
+          leftComponent={
+            <View>
+              <Text style={[material.title]}>Tim Kiem </Text>
+            </View>
+          }
+        />
+        <View style={{ marginTop: 10 }}>
           <View>
             <Button
               title='Sign Up With Facebook'
               icon={{ name: 'facebook-square', type: 'font-awesome' }}
+              buttonStyle={styles.buttonStyle}
               backgroundColor='rgb(59, 89, 152)'
               onPress={this.handleFaceBookAuth.bind(this)}
             />
             <Button
-              buttonStyle={{ marginTop: 10 }}
+              buttonStyle={[styles.buttonStyle,{marginTop: 10 }]}
               title='Sign Up With Google'
               icon={{ name: 'google', type: 'font-awesome' }}
               backgroundColor='rgb(72, 133, 237)'
-            />
-            <Button
-              title='Log out'
-              backgroundColor='rgb(59, 89, 152)'
-              onPress={this.facebookSignOut.bind(this)}
             />
           </View>
         </View>
@@ -217,6 +234,7 @@ class SignUp extends Component {
               <Button
                 title='Submit'
                 onPress={this.onPressSubmit.bind(this)}
+                buttonStyle={styles.buttonStyle}
                 disabled={!submitEnable}
                 icon={{ name: 'sc-telegram', type: 'evilicon' }}
                 backgroundColor='#008CBA'
@@ -224,10 +242,14 @@ class SignUp extends Component {
             </View>
           </Card>
         </View>
-        <View style={{ height: 200, marginTop: 20, flexDirection: 'row', justifyContent: 'center' }}>
-          <TouchableOpacity>
-            <Text h5>Log In</Text>
-          </TouchableOpacity>
+        <View style={{ height: 200, marginTop: 10, flexDirection: 'row', justifyContent: 'center' }}>
+          <Button
+            title='Login'
+            icon={{ name: 'sign-in', type: 'font-awesome' }}
+            buttonStyle={[styles.buttonStyle, { width: 100 }]}
+            backgroundColor='rgb(59, 89, 152)'
+            onPress={this.onPressLogInPage.bind(this)}
+          />
         </View>
       </ScrollView>
     );
@@ -241,6 +263,10 @@ const styles = {
     flexDirection: 'column',
     margin: 20,
     marginBottom: 30
+  },
+  buttonStyle: {
+    shadowOpacity: 1.0,
+    borderRadius: 5,
   },
   text: {
     textAlign: 'center',

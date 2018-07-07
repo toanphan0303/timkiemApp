@@ -13,7 +13,7 @@ class SearchTabBar extends Component {
         <SearchBar
           onFocus={this.onPressSearchBar.bind(this)}
           lightTheme
-          placeholder='City'
+          placeholder='City or Zip code'
           containerStyle={style}
         />
         </View>

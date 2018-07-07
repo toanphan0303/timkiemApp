@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { connect } from 'react-redux';
+import { material } from 'react-native-typography';
 import {
   Button,
   FormLabel,
   FormInput,
   FormValidationMessage,
   Card,
-  Text
+  Text,
+  Header
 } from 'react-native-elements';
 import * as actions from '../actions';
 
@@ -27,9 +29,39 @@ class LogIn extends Component {
   }
   onPressSubmit() {
     const { email, password } = this.state;
-    this.props.logInCognitoPool(email, password, () => {
-      this.props.navigation.navigate('rooms');
+    this.props.loginPoolWraper('login', email, password, () => {
+      this.props.navigation.navigate('myProfile');
     });
+  }
+  onPressSignUpPage() {
+    this.props.navigation.navigate('signup');
+  }
+  handleFaceBookAuth() {
+    this.props.facebookSignUp('login', () => {
+      this.props.navigation.navigate('myProfile');
+    });
+  }
+  ableToSubmit() {
+    const {
+      errorEmail,
+      errorPassword,
+    } = this.state;
+    const intialState = this.checkInitalState();
+    if (errorEmail === null && errorPassword === null && intialState === false) {
+        return true;
+      }
+    return false;
+  }
+  checkInitalState() {
+    const {
+      email,
+      password
+    } = this.state;
+    if (email === ''
+      || password === '') {
+      return true;
+    }
+    return false;
   }
   checkInputEmail() {
     const { email } = this.state;
@@ -54,9 +86,19 @@ class LogIn extends Component {
       return this.setState({ errorPassword: null });
   }
   render() {
+    const submitEnable = this.ableToSubmit();
     return (
-      <View style={{ flex: 1 }}>
-        <View style={{ marginTop: 50 }}>
+      <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+        <Header
+          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, height: 60 }}
+          innerContainerStyles={{ backgroundColor: 'white' }}
+          leftComponent={
+            <View>
+              <Text style={[material.title]}>Tim Kiem </Text>
+            </View>
+          }
+        />
+        <View style={{ marginTop: 10 }}>
           <Card>
             <FormLabel>Email</FormLabel>
             <FormInput
@@ -85,29 +127,37 @@ class LogIn extends Component {
                 onPress={this.onPressSubmit.bind(this)}
                 icon={{ name: 'sc-telegram', type: 'evilicon' }}
                 backgroundColor='#008CBA'
+                buttonStyle={styles.buttonStyle}
+                disabled={!submitEnable}
               />
             </View>
           </Card>
-          <View style={styles.styles}>
+          <View style={{ marginTop: 20 }}>
             <Button
               title='Login With Facebook'
               icon={{ name: 'facebook-square', type: 'font-awesome' }}
               backgroundColor='rgb(59, 89, 152)'
+              buttonStyle={styles.buttonStyle}
+              onPress={this.handleFaceBookAuth.bind(this)}
             />
             <Button
-              buttonStyle={{ marginTop: 10 }}
               title='Login With Google'
               icon={{ name: 'google', type: 'font-awesome' }}
               backgroundColor='rgb(72, 133, 237)'
+              buttonStyle={[styles.buttonStyle, { marginTop: 10 }]}
             />
           </View>
         </View>
         <View style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'center' }}>
-          <TouchableOpacity>
-            <Text h5>Sign Up</Text>
-          </TouchableOpacity>
+          <Button
+            title='SignUp'
+            icon={{ name: 'user-plus', type: 'font-awesome' }}
+            backgroundColor='rgb(60, 186, 84)'
+            buttonStyle={styles.buttonStyle}
+            onPress={this.onPressSignUpPage.bind(this)}
+          />
         </View>
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -121,11 +171,11 @@ const styles = {
     marginBottom: 30,
     marginTop: 20
   },
-  text: {
-    textAlign: 'center',
-    color: '#333',
-    marginBottom: 5,
-  }
+  buttonStyle: {
+    shadowOpacity: 1.0,
+    borderRadius: 5,
+  },
+
 };
 
 
