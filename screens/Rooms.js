@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Icon } from 'react-native-elements';
-import { View } from 'react-native';
+import { View, AsyncStorage } from 'react-native';
 import Map from '../components/Map';
+import { connect } from 'react-redux';
+import * as actions from '../actions';
 
 class Rooms extends Component {
   static navigationOptions = {
@@ -12,6 +14,10 @@ class Rooms extends Component {
         );
     },
   };
+  componentDidMount = async() => {
+    const accessToken = await AsyncStorage.getItem('access_token');
+    await this.props.getUser(accessToken);
+  }
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -23,4 +29,4 @@ class Rooms extends Component {
   }
 }
 
-export default Rooms;
+export default connect(null,actions)(Rooms);

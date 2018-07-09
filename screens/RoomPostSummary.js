@@ -5,21 +5,14 @@ import { material } from 'react-native-typography';
 import { connect } from 'react-redux';
 import Listing from '../components/RoomListing';
 import * as actions from '../actions';
+import TimKiemHeader from '../components/TimKiemHeader';
 
 const RoomPostSummary = ListingComponent =>
   class extends Component {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <Header
-          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, height: 60 }}
-          innerContainerStyles={{ backgroundColor: 'white' }}
-          leftComponent={
-            <View>
-              <Text style={[material.title]}>Tim Kiem </Text>
-            </View>
-          }
-        />
+        <TimKiemHeader />
         <ListingComponent {...this.props} listing={this.props.userRoom.result} />
       </View>
     );

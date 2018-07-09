@@ -5,6 +5,7 @@ import roomDetail from './room_detail_reducer';
 import signupReducer from './signup_reducer';
 import user from './auth_reducer';
 import userRoom from './user_room_reducer';
+import userInfo from './user_info_reducer';
 
 export default combineReducers({
   roomsZips,
@@ -12,5 +13,6 @@ export default combineReducers({
   roomDetail,
   signupReducer,
   user,
-  userRoom
+  userRoom,
+  userInfo
 });

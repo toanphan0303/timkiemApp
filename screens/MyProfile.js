@@ -41,6 +41,12 @@ class MyProfile extends Component {
       this.props.navigation.navigate('roomPostSummary');
     });
   }
+  onPressFavoriteRoom = async() => {
+    const { email, sub } = this.props.user;
+    await this.props.getLikeRooms(sub, email, () => {
+      this.props.navigation.navigate('roomFavorite');
+    });
+  }
   render() {
     return (
       <View style={{ backgroundColor: 'white' }}>
@@ -83,6 +89,7 @@ class MyProfile extends Component {
               titleStyle={[material.caption2Emphasized, { paddingLeft: 20 }]}
               containerStyle={{ backgroundColor: 'rgb(240,240,240)' }}
               onPress={() => this.props.navigation.navigate('roomFavorite')}
+              onPress={this.onPressFavoriteRoom.bind(this)}
             />
             <ListItem
               title='Favorite Job'

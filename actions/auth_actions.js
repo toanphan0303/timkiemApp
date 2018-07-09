@@ -4,6 +4,7 @@ import {
   AuthenticationDetails,
   CognitoUser
 } from 'amazon-cognito-identity-js';
+
 import qs from 'qs';
 import axios from 'axios';
 import { AsyncStorage } from 'react-native';

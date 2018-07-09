@@ -34,24 +34,56 @@ const RoomPostSummary = (props) => {
 
 class RoomListing extends Component {
   state={
-    listing: []
+    listing: [],
+    roomLikes: [],
+    user: {},
   }
-  componentDidMount() {
-    this.setState({ listing: this.props.listing, component: this.props.component });
+  componentDidMount = async() => {
+    const { user } = this.props;
+    let roomLikes = [];
+    if (!_.isEmpty(user)) {
+      const { sub, email } = user;
+      await this.props.fetchUserInfo(sub, email);
+      roomLikes = _.compact(this.props.userInfo.room_likes);
+    }
+    this.setState({
+      listing: this.props.listing,
+      parentCom: this.props.component,
+      login: !_.isEmpty(user),
+      roomLikes,
+      user
+    });
+  }
+  componentWillReceiveProps(nextProps) {
+    const user = _.isEmpty(nextProps.user) ? {} : nextProps.user;
+    this.setState({
+      login: !_.isEmpty(user),
+      roomLikes: nextProps.userInfo.room_likes,
+      user
+    });
   }
   onPressImage(zip, id) {
     this.props.fetchDetailRoom(zip, id, () => {
       this.props.navigation.navigate('roomDetail');
-      console.log('finish navigateing')
     });
   }
-  onPressLike(userId, id, email, expire, price, type, zip) {
-    this.props.addLikeRoom(userId, id, email, expire, price, type, zip);
+  onPressLike = async (userId, roomId, userEmail, expire, price, type, zip, creatorEmail) => {
+    const data = await this.props.addLikeRoom(userId, roomId, userEmail, expire, price, type, zip, creatorEmail);
+    if (data.addLike && data.addLike === 'successful') {
+      await this.props.fetchUserInfo(userId, userEmail);
+    }
   }
+  onPressRemoveLike= async(userId, userEmail, index) => {
+    const data = await this.props.romveLikeRoom(userId, userEmail, index);
+    if (data.removeLike && data.removeLike === 'successful') {
+      await this.props.fetchUserInfo(userId, userEmail);
+    }
+  }
+
   renderListing() {
-    const { listing, component } = this.state;
+    const { listing, parentCom, roomLikes } = this.state;
     if (_.isEmpty(listing)) {
-      if (component === 'roomList') {
+      if (parentCom === 'roomList') {
         return (
           <Card>
             <RoomList />
@@ -65,19 +97,32 @@ class RoomListing extends Component {
       );
     }
     return listing.map(({ id, images, room: { price, type }, zip, timeStamp, expire, email, user }) => {
+      const creatorEmail = email;
+      console.log(this.state.user);
       const roomImages = !_.isEmpty(images) ? images : [defaultImage];
       const date = moment(timeStamp * 1000).format('MM-DD-YYYY');
+      const index = _.findIndex(roomLikes, { roomId: id })
       return (
         <View style={styles.container} key={id}>
           <View style={styles.content1}>
             <Text style={[styles.contentText, material.body2, {marginLeft: 20 }]}>List: {date}</Text>
             <View style={[styles.contentText, { marginRight: 30, width: 40 }]}>
-              <Icon
-                name='heart-outline'
-                type='material-community'
-                size={35}
-                onPress={this.onPressLike.bind(this, user, id, email, expire, price, type, zip)}
-              />
+              {!this.state.login ? <View /> : index>=0 ?
+                  <Icon
+                    name='heart'
+                    color='tomato'
+                    type='material-community'
+                    size={35}
+                    onPress={this.onPressRemoveLike.bind(this, this.state.user.sub, this.state.user.email, index)}
+                  /> :
+                  <Icon
+                    name='heart-outline'
+                    color='blue'
+                    type='material-community'
+                    size={35}
+                    onPress={this.onPressLike.bind(this, this.state.user.sub, id, this.state.user.email, expire, price, type, zip, creatorEmail)}
+                  />
+              }
             </View>
           </View>
           <ImageSlider
@@ -159,5 +204,8 @@ const styles = StyleSheet.create({
     height: 200,
   },
 });
+const mapStateToProps = ({ user, userInfo }) => {
+  return { user, userInfo };
+};
 
-export default RoomListing;
+export default connect(mapStateToProps)(RoomListing);

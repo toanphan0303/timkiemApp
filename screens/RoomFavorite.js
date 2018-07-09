@@ -1,19 +1,26 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Header } from 'react-native-elements';
+import { material } from 'react-native-typography';
+import { connect } from 'react-redux';
+import Listing from '../components/RoomListing';
+import * as actions from '../actions';
+import TimKiemHeader from '../components/TimKiemHeader';
 
-class RoomFavorite extends Component {
+const RoomPostSummary = ListingComponent =>
+  class extends Component {
   render() {
     return (
-      <View>
-        <Text>RoomFavorite Components</Text>
-        <Text>RoomFavorite Components</Text>
-        <Text>RoomFavorite Components</Text>
-        <Text>RoomFavorite Components</Text>
-        <Text>RoomFavorite Components</Text>
+      <View style={{ flex: 1 }}>
+        <TimKiemHeader />
+        <ListingComponent {...this.props} listing={this.props.userRoom.result} />
       </View>
     );
   }
-}
+};
 
-export default RoomFavorite;
+const mapStateToProps = ({ userRoom }) => {
+  return { userRoom };
+};
+
+export default connect(mapStateToProps, actions)(RoomPostSummary(Listing));

@@ -12,3 +12,5 @@ export const SIGN_UP_FACEBOOK_SUCCESS = 'sign_up_success';
 export const GET_USER_SUCCESS = 'get_user_success';
 export const USER_ADD_ROOM = 'user_add_room';
 export const FETCH_USER_POST_ROOM = 'fetch_user_post_room';
+export const FETCH_USER_LIKE_ROOM = 'fetch_user_like_room';
+export const FETCH_USER_INFO = 'fetch_user_info';

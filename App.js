@@ -26,6 +26,7 @@ const ProfileTab = createStackNavigator({
   roomFavorite: { screen: RoomFavorite },
   roomPost: { screen: RoomPost },
   roomPostSummary: { screen: RoomPostSummary },
+  roomDetail: { screen: RoomDetail },
 }, {
   headerMode: 'none',
   transitionConfig: () => ({
