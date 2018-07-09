@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { ScrollView, View, Text, Picker } from 'react-native';
-import { Icon, Header, Card, FormLabel, FormInput, Button, FormValidationMessage } from 'react-native-elements';
+import { Header, FormLabel, FormInput, Button, FormValidationMessage } from 'react-native-elements';
 import { material } from 'react-native-typography';
+import { connect } from 'react-redux';
+import * as actions from '../actions';
 
 
 const ERROR_MESSAGE = {
@@ -12,7 +14,7 @@ const ERROR_MESSAGE = {
 };
 class RoomPost extends Component {
   state = {
-    roomType: '',
+    roomType: 'regular',
     description: '',
     errorDescription: null,
     phone: '',
@@ -22,9 +24,12 @@ class RoomPost extends Component {
     price: '',
     errorPrice: null
   }
-
   onPressSubmit() {
-
+    const { email, sub } = this.props.user;
+    const { roomType, description, phone, zip, price } = this.state;
+    this.props.postRoom(sub, email, description, phone, zip, roomType, price, () => {
+      this.props.navigation.navigate('myProfile');
+    });
   }
   ableToSubmit() {
     const {
@@ -179,4 +184,8 @@ const styles = {
     borderRadius: 5,
   }
 };
-export default RoomPost;
+const mapStateToProps = ({ user }) => {
+  return { user };
+};
+
+export default connect(mapStateToProps, actions)(RoomPost);

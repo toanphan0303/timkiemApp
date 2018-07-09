@@ -10,6 +10,7 @@
     "expo": "^28.0.0",
     "latlng-to-zip": "0.0.1",
     "lodash": "^4.17.10",
+    "moment": "^2.22.2",
     "node-fetch": "^2.1.2",
     "prop-types": "^15.6.1",
     "qs": "^6.5.2",

@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 import { ScrollView, View } from 'react-native';
 import { connect } from 'react-redux';
-import { material } from 'react-native-typography';
 import {
   Button,
   FormLabel,
   FormInput,
   FormValidationMessage,
-  Card,
-  Text,
-  Header
+  Card
 } from 'react-native-elements';
+import TimKiemHeader from '../components/TimKiemHeader';
 import * as actions from '../actions';
 
 const EMAIL_PATTERN = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -37,7 +35,7 @@ class LogIn extends Component {
     this.props.navigation.navigate('signup');
   }
   handleFaceBookAuth() {
-    this.props.facebookSignUp('login', () => {
+    this.props.facebookAuth('login', () => {
       this.props.navigation.navigate('myProfile');
     });
   }
@@ -89,15 +87,7 @@ class LogIn extends Component {
     const submitEnable = this.ableToSubmit();
     return (
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-        <Header
-          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, height: 60 }}
-          innerContainerStyles={{ backgroundColor: 'white' }}
-          leftComponent={
-            <View>
-              <Text style={[material.title]}>Tim Kiem </Text>
-            </View>
-          }
-        />
+        <TimKiemHeader />
         <View style={{ marginTop: 10 }}>
           <Card>
             <FormLabel>Email</FormLabel>

@@ -5,6 +5,7 @@ import { Icon, Header, Button, Card, List, ListItem } from 'react-native-element
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
+import TimKiemHeader from '../components/TimKiemHeader';
 
 class MyProfile extends Component {
   static navigationOptions = {
@@ -34,19 +35,16 @@ class MyProfile extends Component {
   onPressSignOut() {
     this.props.signOut();
   }
-
+  onPressMyRoomPost = async() => {
+    const { email, sub } = this.props.user;
+    await this.props.getPostRoom(sub, email, () => {
+      this.props.navigation.navigate('roomPostSummary');
+    });
+  }
   render() {
     return (
       <View style={{ backgroundColor: 'white' }}>
-        <Header
-          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, height: 60 }}
-          innerContainerStyles={{ backgroundColor: 'white' }}
-          leftComponent={
-            <View>
-              <Text style={[material.title]}>Tim Kiem </Text>
-            </View>
-          }
-        />
+        <TimKiemHeader />
         <View>
           { !_.isEmpty(this.props.user) &&
             <Card>
@@ -96,7 +94,7 @@ class MyProfile extends Component {
               leftIcon={{ name: 'book', type: 'font-awesome' }}
               titleStyle={[material.caption2Emphasized, { paddingLeft: 20 }]}
               containerStyle={{ backgroundColor: 'rgb(240,240,240)' }}
-              onPress={() => this.props.navigation.navigate('roomPostSummary')}
+              onPress={this.onPressMyRoomPost.bind(this)}
             />
             <ListItem
               title='My Post Job'

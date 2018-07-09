@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { View, ScrollView } from 'react-native';
 import { connect } from 'react-redux';
 import { material } from 'react-native-typography';
+import TimKiemHeader from '../components/TimKiemHeader';
+
 import _ from 'lodash';
 import {
   Button,
@@ -144,15 +146,7 @@ class SignUp extends Component {
     const { signupReducer } = this.props;
     return (
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }} keyboardShouldPersistTaps='handled'>
-        <Header
-          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, height: 60 }}
-          innerContainerStyles={{ backgroundColor: 'white' }}
-          leftComponent={
-            <View>
-              <Text style={[material.title]}>Tim Kiem </Text>
-            </View>
-          }
-        />
+        <TimKiemHeader />
         <View style={{ marginTop: 10 }}>
           <View>
             <Button

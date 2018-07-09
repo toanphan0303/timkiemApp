@@ -24,6 +24,7 @@ const ProfileTab = createStackNavigator({
   login: { screen: Login },
   signup: { screen: SignUp },
   roomFavorite: { screen: RoomFavorite },
+  roomPost: { screen: RoomPost },
   roomPostSummary: { screen: RoomPostSummary },
 }, {
   headerMode: 'none',
@@ -115,7 +116,6 @@ const MainNavigator = createBottomTabNavigator({
     })
   },
   jobs: { screen: Jobs },
-  roomPost: { screen: RoomPost },
   myProfile: {
     screen: () => (<ProfileTab uriPrefix={prefixProfile} />),
     navigationOptions: {
