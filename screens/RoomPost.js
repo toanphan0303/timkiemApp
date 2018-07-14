@@ -4,6 +4,7 @@ import { Header, FormLabel, FormInput, Button, FormValidationMessage } from 'rea
 import { material } from 'react-native-typography';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
+import TimKiemHeader from '../components/TimKiemHeader';
 
 
 const ERROR_MESSAGE = {
@@ -22,12 +23,15 @@ class RoomPost extends Component {
     zip: '',
     errorZip: null,
     price: '',
-    errorPrice: null
+    errorPrice: null,
+    loading: false
   }
   onPressSubmit() {
+    this.setState({ loading: true })
     const { email, sub } = this.props.user;
     const { roomType, description, phone, zip, price } = this.state;
     this.props.postRoom(sub, email, description, phone, zip, roomType, price, () => {
+      this.setState({ loading: false })
       this.props.navigation.navigate('myProfile');
     });
   }
@@ -96,15 +100,7 @@ class RoomPost extends Component {
     const submitEnable = this.ableToSubmit();
     return (
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }} keyboardShouldPersistTaps='handled'>
-        <Header
-          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, height: 60 }}
-          innerContainerStyles={{ backgroundColor: 'white' }}
-          leftComponent={
-            <View>
-              <Text style={[material.title]}>Tim Kiem </Text>
-            </View>
-          }
-        />
+        <TimKiemHeader {...this.props} parentScreen='myProfile' />
         <View>
           <View>
           <FormLabel>Description</FormLabel>
@@ -171,6 +167,7 @@ class RoomPost extends Component {
             disabled={!submitEnable}
             icon={{ name: 'sc-telegram', type: 'evilicon' }}
             backgroundColor='#008CBA'
+            loading={this.state.loading}
           />
         </View>
       </ScrollView>

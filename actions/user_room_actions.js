@@ -14,12 +14,13 @@ export const postRoom = (userId, email, desciption, phone, zip, type, price, cal
   const body = {
     userId,
     email,
-    desciption,
+    desc: desciption,
     phone,
     zip,
     price,
     type
   };
+  console.log(body);
   try {
     const { data } = await axios.post(requestURL, body);
     if (data.errorMessage) {
@@ -38,7 +39,6 @@ export const getPostRoom = (userId, email, callback) => async (dispatch) => {
   const requestUrl = BASE_URL + '/roomsummary' + `?userId=${userId}` + `&email=${email}`;
   try {
     const { data } = await axios.get(requestUrl);
-    console.log(data);
     if (data.errorMessage) {
       console.error(data.errorMessage);
     } else {

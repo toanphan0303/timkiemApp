@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { material } from 'react-native-typography';
 import { View, ActivityIndicator, Dimensions } from 'react-native';
+import { compose, withReducer } from 'recompose';
 import { MapView } from 'expo';
 import { connect } from 'react-redux';
-import { Button, Header } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import ZipMarker from './ZipMarker';
-import SearchTabBar from './SearchTabBar';
+import SearchHeader from './SearchHeader';
+import FullScreenSpinner from './HOC/FullScreenSpinner';
 import * as actions from '../actions';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const FullScreenSpinnerView = FullScreenSpinner(View);
 class Map extends Component {
   // IOS does not have initial location && map does not zoom in or our
   state = {
@@ -21,7 +23,8 @@ class Map extends Component {
       longitudeDelta: 0.0421,
     },
     mapLoaded: false,
-    searching: false
+    searching: false,
+    loading: false
   }
   componentDidMount = async () => {
     this.setState({ mapLoaded: true });
@@ -30,7 +33,11 @@ class Map extends Component {
     this.props.fetchRoomsAmountInZip(latitude, longitude);
     this.setState({ searching: false });
   }
-
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.loading !== this.state.loading) {
+      this.setState({ loading: nextProps.loading });
+    }
+  }
   onRegionChangeComplete = (region) => {
     this.setState({ region });
   }
@@ -44,16 +51,13 @@ class Map extends Component {
   }
 
   onPressMarker(zip) {
+    this.setState({ loading: true });
     this.props.fetchRoomsInSingleZip(zip, () => {
+      this.setState({ loading: false });
       this.props.navigation.navigate('roomList');
     });
   }
-  onPressList() {
-    const { zip, state } = this.props.roomsZips;
-    this.props.fetchRoomInMultiZips(zip, state, () => {
-      this.props.navigation.navigate('roomList');
-    });
-  }
+
   getBoundsRadius() {
     const { longitudeDelta } = this.state.region;
     return parseInt((longitudeDelta * 69), 10);
@@ -84,13 +88,11 @@ class Map extends Component {
       );
     }
     return (
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <Header
-          outerContainerStyles={{ backgroundColor: 'white', marginTop: 25, paddingTop: 5, paddingBottom: -5 }}
-          innerContainerStyles={{ backgroundColor: 'white', justifyContent: 'space-around', alignItems: 'flex-start' }}
-          rightComponent={<Button title='List' backgroundColor='white' buttonStyle={{ paddingTop: 15 }} color='black' onPress={this.onPressList.bind(this)}/>}
-          leftComponent={<SearchTabBar navigation={this.props.navigation} />}
-        />
+      <FullScreenSpinnerView
+        style={{ flex: 1, backgroundColor: 'white' }}
+        spinner={this.state.loading}
+      >
+        <SearchHeader {...this.props} go='list' title='List' />
         <MapView
           style={{ flex: 1 }}
           provider="google"
@@ -113,7 +115,7 @@ class Map extends Component {
             buttonStyle={styles.buttonStyle}
           />
         </View>
-      </View>
+      </FullScreenSpinnerView>
     );
   }
 }
@@ -135,5 +137,17 @@ const styles = {
 const mapStateToProps = ({ roomsZips }) => {
   return { roomsZips };
 };
-
-export default connect(mapStateToProps, actions)(Map);
+const loadingReducer = (value, action) => {
+  switch (action.type) {
+    case 'LOADING':
+      return true;
+    case 'FINISH_LOADING':
+      return false;
+    default:
+      return false;
+  }
+};
+const enhance = compose(
+    withReducer('loading', 'dispatchLoading', loadingReducer, false),
+);
+export default connect(mapStateToProps, actions)(enhance(Map));

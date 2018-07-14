@@ -16,11 +16,72 @@ import RoomPost from './screens/RoomPost';
 import RoomPostSummary from './screens/RoomPostSummary';
 import RoomFavorite from './screens/RoomFavorite';
 
-const ProfileTab = createStackNavigator({
-  myProfile: {
-    screen: MyProfile,
-    path: 'myprofile'
+function slideSide() {
+  return ({
+  transitionSpec: {
+    duration: 750,
+    easing: Easing.out(Easing.poly(4)),
+    timing: Animated.timing,
+    useNativeDriver: true,
   },
+  screenInterpolator: sceneProps => {
+    const { position, layout, scene, index, scenes } = sceneProps;
+    const toIndex = index;
+    const thisSceneIndex = scene.index;
+    const height = layout.initHeight;
+    const width = layout.initWidth;
+    const translateX = position.interpolate({
+      inputRange: [thisSceneIndex - 1, thisSceneIndex, thisSceneIndex + 1],
+      outputRange: [width, 0, 0]
+    });
+    const translateY = position.interpolate({
+      inputRange: [0, thisSceneIndex],
+      outputRange: [height, 0]
+    });
+    const slideFromRight = { transform: [{ translateX }] };
+    const slideFromBottom = { transform: [{ translateY }] };
+    const lastSceneIndex = scenes[scenes.length - 1].index;
+    // Test whether we're skipping back more than one screen
+    if (lastSceneIndex - toIndex > 1) {
+      // Do not transoform the screen being navigated to
+      if (scene.index === toIndex) return;
+      // Hide all screens in between
+      if (scene.index !== lastSceneIndex) return { opacity: 0 };
+      // Slide top screen down
+      return slideFromBottom;
+    }
+    return slideFromRight;
+  },
+}) };
+
+function slideUp() {
+  return ({
+    transitionSpec: {
+      duration: 750,
+      easing: Easing.out(Easing.poly(4)),
+      timing: Animated.timing,
+    },
+    screenInterpolator: sceneProps => {
+      const { layout, position, scene } = sceneProps;
+      const { index } = scene;
+
+      const height = layout.initHeight;
+      const translateY = position.interpolate({
+        inputRange: [index - 1, index, index + 1],
+        outputRange: [height, 0, 0],
+      });
+
+      const opacity = position.interpolate({
+        inputRange: [index - 1, index - 0.99, index],
+        outputRange: [0, 1, 1],
+      });
+
+      return { opacity, transform: [{ translateY }] };
+    },
+  });
+}
+const ProfileTab = createStackNavigator({
+  myProfile: { screen: MyProfile },
   login: { screen: Login },
   signup: { screen: SignUp },
   roomFavorite: { screen: RoomFavorite },
@@ -72,53 +133,10 @@ const MainNavigator = createBottomTabNavigator({
       roomSearch: { screen: RoomSearch }
     }, {
       headerMode: 'none',
-      transitionConfig: () => ({
-        transitionSpec: {
-        duration: 750,
-        easing: Easing.out(Easing.poly(4)),
-        timing: Animated.timing,
-        useNativeDriver: true,
-      },
-      screenInterpolator: sceneProps => {
-          const { position, layout, scene, index, scenes } = sceneProps;
-          const toIndex = index;
-          const thisSceneIndex = scene.index;
-          const height = layout.initHeight;
-          const width = layout.initWidth;
-
-          const translateX = position.interpolate({
-            inputRange: [thisSceneIndex - 1, thisSceneIndex, thisSceneIndex + 1],
-            outputRange: [width, 0, 0]
-          });
-
-          const translateY = position.interpolate({
-            inputRange: [0, thisSceneIndex],
-            outputRange: [height, 0]
-          });
-
-          const slideFromRight = { transform: [{ translateX }] };
-          const slideFromBottom = { transform: [{ translateY }] };
-
-          const lastSceneIndex = scenes[scenes.length - 1].index;
-
-          // Test whether we're skipping back more than one screen
-          if (lastSceneIndex - toIndex > 1) {
-            // Do not transoform the screen being navigated to
-            if (scene.index === toIndex) return;
-            // Hide all screens in between
-            if (scene.index !== lastSceneIndex) return { opacity: 0 };
-            // Slide top screen down
-            return slideFromBottom;
-          }
-
-          return slideFromRight;
-        },
-      })
+      transitionConfig: slideUp
     })
   },
-  jobs: { screen: Jobs },
   myProfile: {
-    screen: () => (<ProfileTab uriPrefix={prefixProfile} />),
     navigationOptions: {
       title: 'My Profile',
       tabBarIcon: ({ tintColor }) => {
@@ -127,30 +145,46 @@ const MainNavigator = createBottomTabNavigator({
         );
       }
     },
+    screen: createStackNavigator({
+      myProfile: { screen: MyProfile },
+      login: { screen: Login },
+      signup: { screen: SignUp },
+      roomFavorite: { screen: RoomFavorite },
+      roomPost: { screen: RoomPost },
+      roomPostSummary: { screen: RoomPostSummary },
+      roomDetail: { screen: RoomDetail },
+    }, {
+      headerMode: 'none',
+      transitionConfig: slideSide
+    })
   },
 },
 {
-  navigationOptions: {
-    tabBarOptions: {
-      activeTintColor: '#rgb(90, 200, 250)',
-      inactiveTintColor: 'gray',
-      labelStyle: {
-        fontSize: 12
+  navigationOptions: ({ navigation }) => {
+    const showTabBar = navigation.state && navigation.state.routes && navigation.state.routes[1]
+    && navigation.state.routes[1].params ? navigation.state.routes[1].params.params.showTabBar : true;
+    return {
+      tabBarOptions: {
+        activeTintColor: '#rgb(90, 200, 250)',
+        inactiveTintColor: 'gray',
+        labelStyle: {
+          fontSize: 12
+        },
       },
-      tabBarLabel: 'Home',
-      tabBarIcon: ({ tintColor }) => (
-        <View><Icon name="home" size={24} color={tintColor} /></View>
-      )
-    }
-  },
+      tabBarVisible: showTabBar
+    };
+  }
 });
 const prefix = Platform.OS === 'android' ? 'timkiem://timkiem/' : 'timkiem://';
 export default class App extends React.Component {
+
   render() {
     return (
       <Provider store={store}>
         <View style={styles.container}>
-          <MainNavigator uriPrefix={prefix} />
+          <MainNavigator
+            uriPrefix={prefix}
+          />
         </View>
       </Provider>
     );
@@ -160,5 +194,14 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  containerBar: {
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    elevation: 8,
   },
 });

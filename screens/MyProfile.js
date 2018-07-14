@@ -6,6 +6,10 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import TimKiemHeader from '../components/TimKiemHeader';
+import FullScreenSpinner from '../components/HOC/FullScreenSpinner';
+import Fade from '../components/HOC/FadeAnimate';
+
+const FullScreenSpinnerView = FullScreenSpinner(View);
 
 class MyProfile extends Component {
   static navigationOptions = {
@@ -15,6 +19,10 @@ class MyProfile extends Component {
           <Icon name='person' size={25} color={tintColor} />
         );
     },
+  };
+  state = {
+    loading: false,
+    visible: false
   };
   componentDidMount = async () => {
     try {
@@ -36,26 +44,35 @@ class MyProfile extends Component {
     this.props.signOut();
   }
   onPressMyRoomPost = async() => {
+    this.setState({ loading: true });
     const { email, sub } = this.props.user;
     await this.props.getPostRoom(sub, email, () => {
+      this.setState({ loading: false });
       this.props.navigation.navigate('roomPostSummary');
     });
   }
   onPressFavoriteRoom = async() => {
+    this.setState({ loading: true });
     const { email, sub } = this.props.user;
     await this.props.getLikeRooms(sub, email, () => {
+      this.setState({ loading: false });
       this.props.navigation.navigate('roomFavorite');
     });
   }
   render() {
     return (
-      <View style={{ backgroundColor: 'white' }}>
-        <TimKiemHeader />
+      <FullScreenSpinnerView
+        spinner={this.state.loading}
+        style={{ flex: 1, backgroundColor: 'white' }}
+      >
+        <TimKiemHeader {...this.props} parentScreen='rooms'/>
         <View>
           { !_.isEmpty(this.props.user) &&
-            <Card>
-              <Text style={material.headline}>Hi {this.props.user.given_name} !</Text>
-            </Card>
+            <View>
+              <Fade visible={true}>
+                <Text style={[material.title, { fontWeight: 'bold', paddingTop: 20, paddingLeft: 20 }]}>Hi {this.props.user.given_name} !</Text>
+              </Fade>
+            </View>
           }
           <View style={{ marginTop: 10 }}>
             { _.isEmpty(this.props.user) &&
@@ -92,21 +109,10 @@ class MyProfile extends Component {
               onPress={this.onPressFavoriteRoom.bind(this)}
             />
             <ListItem
-              title='Favorite Job'
-              leftIcon={{ name: 'heart', type: 'font-awesome' }}
-              titleStyle={[material.caption2Emphasized, { paddingLeft: 20 }]}
-            />
-            <ListItem
               title='My Post Room'
-              leftIcon={{ name: 'book', type: 'font-awesome' }}
-              titleStyle={[material.caption2Emphasized, { paddingLeft: 20 }]}
-              containerStyle={{ backgroundColor: 'rgb(240,240,240)' }}
-              onPress={this.onPressMyRoomPost.bind(this)}
-            />
-            <ListItem
-              title='My Post Job'
               leftIcon={{ name: 'folder', type: 'font-awesome' }}
               titleStyle={[material.caption2Emphasized, { paddingLeft: 20 }]}
+              onPress={this.onPressMyRoomPost.bind(this)}
             />
             <ListItem
               title='Post room'
@@ -114,11 +120,6 @@ class MyProfile extends Component {
               titleStyle={[material.caption2Emphasized, { paddingLeft: 20 }]}
               containerStyle={{ backgroundColor: 'rgb(240,240,240)' }}
               onPress={() => this.props.navigation.navigate('roomPost')}
-            />
-            <ListItem
-              title='Post Job'
-              leftIcon={{ name: 'folder', type: 'font-awesome' }}
-              titleStyle={[material.caption2Emphasized, { paddingLeft: 20 }]}
             />
           </List>
         }
@@ -132,7 +133,7 @@ class MyProfile extends Component {
             />
           </View>
         }
-      </View>
+      </FullScreenSpinnerView>
     );
   }
 }

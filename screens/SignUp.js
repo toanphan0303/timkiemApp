@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { connect } from 'react-redux';
-import { material } from 'react-native-typography';
-import TimKiemHeader from '../components/TimKiemHeader';
-
 import _ from 'lodash';
 import {
   Button,
@@ -11,10 +8,9 @@ import {
   FormInput,
   FormValidationMessage,
   Card,
-  Text,
   Icon,
-  Header
 } from 'react-native-elements';
+import TimKiemHeader from '../components/TimKiemHeader';
 import * as actions from '../actions';
 
 const ERROR_MESSAGE = {
@@ -27,6 +23,7 @@ const ERROR_MESSAGE = {
 const NAME_PATTERN = /^[a-zA-Z]*$/;
 const EMAIL_PATTERN = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,26}/
+
 class SignUp extends Component {
   state = {
     user: undefined,
@@ -40,10 +37,13 @@ class SignUp extends Component {
     errorPassword: null,
     rePassword: '',
     errorRePassword: null,
+    loading: false
   }
   onPressSubmit() {
+    this.setState({ loading: true });
     const { email, password, firstName, lastName } = this.state;
     this.props.signUpCognitoPool('signup', email, password, firstName, lastName, () => {
+      this.setState({ loading: false });
       this.props.navigation.navigate('myProfile');
     });
   }
@@ -77,14 +77,17 @@ class SignUp extends Component {
     }
       return this.setState({ errorLastName: null });
   }
-  checkInputEmail() {
+  checkInputEmail= async() => {
     const { email } = this.state;
+    const user = await this.props.checkEmailExisted(email);
     if (email.length === 0) {
       this.formInputEmail.shake();
       return this.setState({ errorEmail: ERROR_MESSAGE.emptyError });
     } else if (!EMAIL_PATTERN.test(email)) {
       this.formInputEmail.shake();
       return this.setState({ errorEmail: ERROR_MESSAGE.errorEmail });
+    } else if (!_.isEmpty(user)) {
+      return this.setState({ errorEmail: 'Email already existed' });
     }
       return this.setState({ errorEmail: null });
   }
@@ -146,7 +149,8 @@ class SignUp extends Component {
     const { signupReducer } = this.props;
     return (
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }} keyboardShouldPersistTaps='handled'>
-        <TimKiemHeader />
+        <KeyboardAvoidingView enabled>
+        <TimKiemHeader {...this.props} parentScreen='myProfile'/>
         <View style={{ marginTop: 10 }}>
           <View>
             <Button
@@ -176,7 +180,7 @@ class SignUp extends Component {
             <FormInput
               onChangeText={(text) => this.setState({ firstName: text })}
               value={this.state.firstName}
-              onBlur={this.checkInputFirstName.bind(this)}
+              onEndEditing={this.checkInputFirstName.bind(this)}
               ref={ref => this.formInputFirstName = ref}
             />
             { this.state.errorFirstName &&
@@ -232,6 +236,7 @@ class SignUp extends Component {
                 disabled={!submitEnable}
                 icon={{ name: 'sc-telegram', type: 'evilicon' }}
                 backgroundColor='#008CBA'
+                loading={this.state.loading}
               />
             </View>
           </Card>
@@ -245,6 +250,7 @@ class SignUp extends Component {
             onPress={this.onPressLogInPage.bind(this)}
           />
         </View>
+        </KeyboardAvoidingView>
       </ScrollView>
     );
   }

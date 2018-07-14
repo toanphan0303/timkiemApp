@@ -3,12 +3,16 @@ import _ from 'lodash';
 import { ScrollView, View, Text, TouchableOpacity, Dimensions, Image, StyleSheet } from 'react-native';
 import ImageSlider from 'react-native-image-slider';
 import moment from 'moment';
-import { Card, Icon } from 'react-native-elements';
+import { Card } from 'react-native-elements';
 import { material } from 'react-native-typography';
 import { connect } from 'react-redux';
+import EitherLikeIcon from './HOC/EitherLikeIcon';
+import withFullScreenSpinnerView from './HOC/FullScreenSpinner';
 
 const defaultImage = 'https://s3.amazonaws.com/timkiem-data/basicbed.jpg';
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const FullScreenSpinnerView = withFullScreenSpinnerView(View);
+const RenderEitherLikeIcon = EitherLikeIcon(<View />);
 
 const RoomList = (props) => {
   return (
@@ -16,7 +20,7 @@ const RoomList = (props) => {
       <Text>Sorry there is no room in this area</Text>
       <Text>Please search other areas</Text>
     </View>
-  )
+  );
 };
 const RoomPostSummary = (props) => {
   return (
@@ -37,6 +41,7 @@ class RoomListing extends Component {
     listing: [],
     roomLikes: [],
     user: {},
+    loading: false
   }
   componentDidMount = async() => {
     const { user } = this.props;
@@ -63,21 +68,11 @@ class RoomListing extends Component {
     });
   }
   onPressImage(zip, id) {
+    this.setState({ loading: true });
     this.props.fetchDetailRoom(zip, id, () => {
       this.props.navigation.navigate('roomDetail');
+      this.setState({ loading: false });
     });
-  }
-  onPressLike = async (userId, roomId, userEmail, expire, price, type, zip, creatorEmail) => {
-    const data = await this.props.addLikeRoom(userId, roomId, userEmail, expire, price, type, zip, creatorEmail);
-    if (data.addLike && data.addLike === 'successful') {
-      await this.props.fetchUserInfo(userId, userEmail);
-    }
-  }
-  onPressRemoveLike= async(userId, userEmail, index) => {
-    const data = await this.props.romveLikeRoom(userId, userEmail, index);
-    if (data.removeLike && data.removeLike === 'successful') {
-      await this.props.fetchUserInfo(userId, userEmail);
-    }
   }
 
   renderListing() {
@@ -98,31 +93,26 @@ class RoomListing extends Component {
     }
     return listing.map(({ id, images, room: { price, type }, zip, timeStamp, expire, email, user }) => {
       const creatorEmail = email;
-      console.log(this.state.user);
       const roomImages = !_.isEmpty(images) ? images : [defaultImage];
+      const listInfo = { id, creatorEmail, price, type, zip, expire };
       const date = moment(timeStamp * 1000).format('MM-DD-YYYY');
       const index = _.findIndex(roomLikes, { roomId: id })
       return (
         <View style={styles.container} key={id}>
+          <FullScreenSpinnerView
+            style={{ flex: 1, backgroundColor: 'white' }}
+            spinner={this.state.loading}
+          >
           <View style={styles.content1}>
             <Text style={[styles.contentText, material.body2, {marginLeft: 20 }]}>List: {date}</Text>
             <View style={[styles.contentText, { marginRight: 30, width: 40 }]}>
-              {!this.state.login ? <View /> : index>=0 ?
-                  <Icon
-                    name='heart'
-                    color='tomato'
-                    type='material-community'
-                    size={35}
-                    onPress={this.onPressRemoveLike.bind(this, this.state.user.sub, this.state.user.email, index)}
-                  /> :
-                  <Icon
-                    name='heart-outline'
-                    color='blue'
-                    type='material-community'
-                    size={35}
-                    onPress={this.onPressLike.bind(this, this.state.user.sub, id, this.state.user.email, expire, price, type, zip, creatorEmail)}
-                  />
-              }
+              <RenderEitherLikeIcon
+                login={this.state.login}
+                index={index}
+                {...this.props}
+                listInfo={listInfo}
+                {...this.state}
+              />
             </View>
           </View>
           <ImageSlider
@@ -149,6 +139,7 @@ class RoomListing extends Component {
             </View>
             <Text style={[material.button, { fontWeight: 'bold', fontSize: 16, marginRight: 20, paddingTop: 10 }]}>Room Type: {type}</Text>
           </View>
+          </FullScreenSpinnerView>
         </View>
       );
     });

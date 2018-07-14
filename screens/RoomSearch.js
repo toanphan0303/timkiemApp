@@ -4,7 +4,6 @@ import { View } from 'react-native';
 import GoogleSearch from '../components/GoogleSearchBar';
 
 class RoomSearch extends Component {
-
   render() {
     return (
       <View style={{ flex: 1 }}>
