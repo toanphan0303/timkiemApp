@@ -18,10 +18,10 @@ import { material } from 'react-native-typography';
 import ImageSlider from 'react-native-image-slider';
 import * as actions from '../actions';
 import EitherLikeIcon from '../components/HOC/EitherLikeIcon';
+import { defaultImage } from '../key/default';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const defaultImage = 'https://s3.amazonaws.com/timkiem-data/basicbed.jpg';
 const RenderEitherLikeIcon = EitherLikeIcon(<View />);
 
 class RoomDetail extends Component {

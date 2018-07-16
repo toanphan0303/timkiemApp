@@ -14,11 +14,10 @@ import axios from 'axios';
 import { AsyncStorage } from 'react-native';
 import { AuthSession } from 'expo';
 import {
-  ERROR_SIGN_UP,
   SIGN_UP_SUCCESS,
   LOGIN_SUCCESS,
-  ERROR_LOGIN,
-  GET_USER_SUCCESS
+  GET_USER_SUCCESS,
+  ERROR_AUTH
 } from '../types';
 import { UserPoolId, ClientId, cognitoUrl } from '../../key/cognitoKey';
 
@@ -45,13 +44,14 @@ export async function logInCognitoPool(term, email, password, callback, dispatch
             try {
               const userInfo = result.idToken.payload;
               const { family_name, given_name, email, sub } = userInfo;
-              await onAuthComplete('email',result.getAccessToken().getJwtToken(), result.getIdToken().getJwtToken(), result.getRefreshToken().getToken());
+              await onAuthComplete('email',result.getAccessToken().getJwtToken(), result.getIdToken().getJwtToken(), result.getRefreshToken().getToken(), dispatch);
               dispatch({ type: LOGIN_SUCCESS, payload: {email, given_name, family_name, sub}});
               if(term === 'signup') {
-                  await registerUserIntoDDB({family_name, given_name, email, sub, username: email});
+                  await registerUserIntoDDB({family_name, given_name, email, sub, username: email}, dispatch);
               }
               callback();
             } catch(e){
+              dispatch({ type: ERROR_AUTH, payload: e });
               console.err('here is error in logInCognitoPool', e)
             }
         },
@@ -59,6 +59,7 @@ export async function logInCognitoPool(term, email, password, callback, dispatch
             if(err.code === 'UnknownError'){
               callback();
             }
+            dispatch({ type: ERROR_AUTH, payload: err });
             console.log('error of authenticateUser', err);
         },
   });
@@ -69,6 +70,7 @@ async function validateUserPool(){
     return new Promise((resolve, reject) => {
       userPool.storage.sync((err, result) => {
         if(err) {
+          dispatch({ type: ERROR_AUTH, payload: err });
           console.log('unable to load user to local storage', err)
         } else if( result === 'SUCCESS') {
           const cognitoUser = userPool.getCurrentUser();
@@ -76,11 +78,13 @@ async function validateUserPool(){
                cognitoUser.getSession(function(err, session) {
                    if (err) {
                        console.log('error when get user session ', err)
+                       dispatch({ type: ERROR_AUTH, payload: err });
                        return;
                    }
                    cognitoUser.getUserAttributes(function(err, attributes) {
                        if (err) {
-                         console.log('error on validate session ', err)
+                        dispatch({ type: ERROR_AUTH, payload: err });
+                        console.log('error on validate session ', err)
                        } else {
                          for (item of attributes) {
                             userInfo[item.Name] = item.Value;
@@ -99,7 +103,7 @@ export async function invalidateToken() {
   return await AsyncStorage.multiRemove(['type','access_token', 'id_token', 'refresh_token' ])
 }
 // save user and token in local storage
-export async function onAuthComplete(type, access_token, id_token, refresh_token) {
+export async function onAuthComplete(type, access_token, id_token, refresh_token, dispatch) {
   const data = []
   const typeLogin = ['typeLogin', type ]
   const accessToken = ['access_token', access_token ];
@@ -109,16 +113,17 @@ export async function onAuthComplete(type, access_token, id_token, refresh_token
   try {
     await AsyncStorage.multiSet(data);
   } catch(e) {
+    dispatch({ type: ERROR_AUTH, payload: e });
     console.error(e);
   }
 }
 
-export async function registerUserIntoDDB(user) {
+export async function registerUserIntoDDB(user, dispatch) {
   const requestUrl = USER_BASE_URL;
   const { sub, email, username, given_name, family_name } = user;
   const existedUser = await checkUserInDB(email);
   if ( !_.isEmpty(existedUser)) {
-    return;
+    dispatch({ type: ERROR_AUTH, payload: {message: "User already exist in Database"} });
   };
   const body = {
     sub,
@@ -130,6 +135,7 @@ export async function registerUserIntoDDB(user) {
   try {
     await axios.post(requestUrl, body);
   } catch (e) {
+    dispatch({ type: ERROR_AUTH, payload: e });
     console.error(e);
   }
 }
@@ -171,6 +177,7 @@ export async function getTokenSocial(authCode) {
   try {
     return await axios.post(requestUrl, qs.stringify(data), config);
   } catch (e) {
+    dispatch({ type: ERROR_AUTH, payload: e });
     console.log('error on get token for social auth ', e)
   }
 }

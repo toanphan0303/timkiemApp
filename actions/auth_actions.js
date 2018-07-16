@@ -1,11 +1,13 @@
-import { CognitoUserPool } from 'amazon-cognito-identity-js';
+import {
+  CognitoUserPool,
+  CognitoUserAttribute
+} from 'amazon-cognito-identity-js';
 import _ from 'lodash';
 import { AsyncStorage } from 'react-native';
 import { AuthSession } from 'expo';
 import {
-  ERROR_SIGN_UP,
   LOGIN_SUCCESS,
-  ERROR_LOGIN,
+  ERROR_AUTH
 } from './types';
 import {
   logInCognitoPool,
@@ -50,14 +52,14 @@ export const signUpCognitoPool = (term, email, password, given_name, family_name
     userPool.signUp(email, password, attributeList, null, async (err, result) => {
         if (err) {
             console.log('error of sign up', err);
-            dispatch({ type: ERROR_SIGN_UP, payload: err });
+            dispatch({ type: ERROR_AUTH, payload: err });
             return;
         }
         cognitoUser = result.user;
         try {
             await logInCognitoPool(term, email, password, callback, dispatch);
         } catch (e) {
-          dispatch({ type: ERROR_LOGIN, payload: err });
+          dispatch({ type: ERROR_AUTH, payload: e });
         }
     });
 };
@@ -69,27 +71,32 @@ export const socialAuth = (term, callback) => async(dispatch) => {
     `&client_id=${ClientId}` +
     `&redirect_uri=${encodeURIComponent(redirectUrl)}`
   });
-  console.log('result ', result)
   if (result.type === 'success') {
     try {
       const token = await getTokenSocial(result.params.code);
-      console.log('token ', token)
       if (token.status === 200) {
         const user = await getUserInfo('social', token.data.access_token);
-        console.log('user ', user);
         if (user.data) {
           const { access_token, id_token, refresh_token } = token.data;
-          await onAuthComplete('social', access_token, id_token, refresh_token);
+          await onAuthComplete('social', access_token, id_token, refresh_token, dispatch);
           if (term === 'signup') {
-            await registerUserIntoDDB(user.data);
+            if (user && user.data){
+              const existedUser = await checkUserInDB(user.data.email);
+              if (!_.isEmpty(existedUser)) {
+                await signOut();
+                return dispatch({ type: ERROR_AUTH, payload: { message: "Email already exist in Database" }});
+              }
+            }
+            await registerUserIntoDDB(user.data, dispatch);
           }
           dispatch({ type: LOGIN_SUCCESS, payload: user.data });
+          dispatch({ type: ERROR_AUTH, payload: {} });
           callback();
         }
       }
     } catch (e) {
       console.log('error social auth: ', e);
-      dispatch({ type: ERROR_SIGN_UP, payload: e });
+      dispatch({ type: ERROR_AUTH, payload: e });
     }
   }
   return;
@@ -103,6 +110,7 @@ export const signOut = () => async (dispatch) => {
     cognitoUser.signOut();
     await invalidateToken();
     dispatch({ type: LOGIN_SUCCESS, payload: {} });
+    dispatch({ type: ERROR_AUTH, payload: {} });
   } else {
     const redirectUrl = AuthSession.getRedirectUrl();
     try {
@@ -113,8 +121,9 @@ export const signOut = () => async (dispatch) => {
       });
       await invalidateToken();
       dispatch({ type: LOGIN_SUCCESS, payload: {} });
+      dispatch({ type: ERROR_AUTH, payload: {} });
     } catch (e) {
-      console.error(e);
+      dispatch({ type: ERROR_AUTH, payload: e });
     }
   }
 };
@@ -130,7 +139,9 @@ export const getUser = (accessToken) => async(dispatch) => {
   try {
     const userInfo = await getUserInfo(typeLogin, accessToken);
     dispatch({ type: LOGIN_SUCCESS, payload: userInfo.data });
+    dispatch({ type: ERROR_AUTH, payload: {} });
   } catch (e) {
-    console.log('get user error', e);
+    console.log('error when get user', e);
+    dispatch({ type: ERROR_AUTH, payload: e });
   }
 };

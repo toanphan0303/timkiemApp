@@ -15,13 +15,17 @@ class LoginForm extends Component {
   state= {
     loading: false
   }
-  onPressSubmit() {
+  onPressSubmit = async() => {
     this.setState({ loading: true });
     const { email, password } = this.props;
-    this.props.loginPoolWraper('login', email, password, () => {
+    try {
+      await this.props.loginPoolWraper('login', email, password, () => {
+        this.setState({ loading: false });
+        this.props.navigation.navigate('myProfile');
+      });
+    } catch (e) {
       this.setState({ loading: false });
-      this.props.navigation.navigate('myProfile');
-    });
+    }
   }
   ableToSubmit() {
     const {

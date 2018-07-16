@@ -14,12 +14,15 @@ const RoomPostSummary = ListingComponent =>
       key: this.props.navigation.state.key,
       });
       this.props.navigation.dispatch(setParamsAction);
+      this.setState({
+        listing: this.props.userRoom.result
+      });
     }
     render() {
       return (
         <View style={{ flex: 1 }}>
-          <TimKiemHeader {...this.props} parentScreen='myProfile'/>
-          <ListingComponent {...this.props} listing={this.props.userRoom.result} />
+          <TimKiemHeader {...this.props} parentScreen='myProfile' />
+          <ListingComponent {...this.props} listing={this.state.listing} />
         </View>
       );
     }

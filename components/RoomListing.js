@@ -9,8 +9,8 @@ import { connect } from 'react-redux';
 import { LinearGradient } from 'expo';
 import EitherLikeIcon from './HOC/EitherLikeIcon';
 import withFullScreenSpinnerView from './HOC/FullScreenSpinner';
+import { defaultImage } from '../key/default';
 
-const defaultImage = 'https://s3.amazonaws.com/timkiem-data/basicbed.jpg';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const FullScreenSpinnerView = withFullScreenSpinnerView(View);
 const RenderEitherLikeIcon = EitherLikeIcon(<View />);
@@ -18,19 +18,19 @@ const RenderEitherLikeIcon = EitherLikeIcon(<View />);
 const RoomList = (props) => {
   return (
     <View>
-      <Text>Sorry there is no room in this area</Text>
-      <Text>Please search other areas</Text>
+      <Text style={[material.body, { fontWeight: 'bold', fontSize: 17 }]}>Sorry there is no room in this area</Text>
+      <Text style={[material.body, { fontWeight: 'bold', fontSize: 17 }]}>Please search other areas</Text>
     </View>
   );
 };
 const RoomPostSummary = (props) => {
   return (
     <View>
-      <Text>You have not post any room yet</Text>
+      <Text style={[material.body, { fontWeight: 'bold', fontSize: 17 }]}>You have not posted any room yet</Text>
       <TouchableOpacity
         onPress={() => props.navigation.navigate('roomPost')}
       >
-        <Text>Click to post room</Text>
+        <Text style={[material.body, { fontWeight: 'bold', fontSize: 18, color: '6633FF' }]}>Click to post room</Text>
       </TouchableOpacity>
     </View>
   );
@@ -45,7 +45,7 @@ class RoomListing extends Component {
     loading: false,
     keyId: null
   }
-  componentDidMount = async() => {
+  componentWillMount = async() => {
     const { user } = this.props;
     let roomLikes = [];
     if (!_.isEmpty(user)) {

@@ -15,6 +15,7 @@ class SearchTabBar extends Component {
           lightTheme
           placeholder='City or Zip code'
           containerStyle={style}
+          inputStyle={{ backgroundColor: 'rgb(232,232,232)' }}
         />
         </View>
       </TouchableOpacity>

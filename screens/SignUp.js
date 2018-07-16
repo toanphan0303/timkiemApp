@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { View, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { View, ScrollView, KeyboardAvoidingView, TouchableOpacity, Text } from 'react-native';
+import { LinearGradient } from 'expo';
 import { connect } from 'react-redux';
+import { material } from 'react-native-typography';
 import _ from 'lodash';
 import {
   Button,
@@ -39,13 +41,17 @@ class SignUp extends Component {
     errorRePassword: null,
     loading: false
   }
-  onPressSubmit() {
+  onPressSubmit = async() => {
     this.setState({ loading: true });
     const { email, password, firstName, lastName } = this.state;
-    this.props.signUpCognitoPool('signup', email, password, firstName, lastName, () => {
+    try {
+      await this.props.signUpCognitoPool('signup', email, password, firstName, lastName, () => {
+        this.setState({ loading: false });
+        this.props.navigation.navigate('myProfile');
+      });
+    } catch (e) {
       this.setState({ loading: false });
-      this.props.navigation.navigate('myProfile');
-    });
+    }
   }
   onPressLogInPage() {
     this.props.navigation.navigate('login');
@@ -146,28 +152,39 @@ class SignUp extends Component {
   }
   render() {
     const submitEnable = this.ableToSubmit();
-    const { signupReducer } = this.props;
     return (
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }} keyboardShouldPersistTaps='handled'>
         <KeyboardAvoidingView enabled>
         <TimKiemHeader {...this.props} parentScreen='myProfile'/>
-        <View style={{ marginTop: 10 }}>
-          <View>
-            <Button
-              title='Sign Up With Facebook or Google'
-              icon={{ name: 'facebook-square', type: 'font-awesome' }}
-              icon={{ name: 'google', type: 'font-awesome' }}
-              buttonStyle={styles.buttonStyle}
-              backgroundColor='rgb(59, 89, 152)'
+        <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center'  }}>
+          <LinearGradient
+            colors={['#6600FF','#0066FF']}
+            start={{x: 0.1, y: 0.1}} end={{x: 1, y: 1}}
+            style={{ height: 48, width: 350, alignItems: 'center', justifyContent: 'center', borderRadius: 5 }}
+          >
+            <TouchableOpacity
+              style={styles.buttonContainer1}
               onPress={this.handleSocialAuth.bind(this)}
-            />
-          </View>
+            >
+                <View style={{ flexDirection: 'row' }}>
+                  <View style={{ marginRight: 10, marginLeft: 40, paddingLeft: 20, marginTop: 7 }}>
+                    <Icon color='white' name='facebook' type='font-awesome' size={25} />
+                  </View>
+                  <View style={{ marginLeft: 10, marginRight: 10, marginTop: 7 }}>
+                    <Icon color='white' name='google' type='font-awesome' size={25} />
+                  </View>
+                  <Text style={styles.buttonText1}>
+                      Sign Up With Facebook or Google
+                  </Text>
+                </View>
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
         <View>
-          { !_.isEmpty(signupReducer) &&
+          { !_.isEmpty(this.props.errorAuth.message) &&
             <View style={{ marginLeft: 20, flexDirection: 'row' }}>
               <Icon iconStyle={{ paddingTop: 5, paddingLeft: 10 }} color='red' name='close' type='evilicon' />
-              <FormValidationMessage>{signupReducer.message}</FormValidationMessage>
+              <FormValidationMessage inputStyle={[material.button, { fontSize: 17, fontWeight: 'bold'}]}>{this.props.errorAuth.message}</FormValidationMessage>
             </View>
           }
           <Card>
@@ -237,13 +254,25 @@ class SignUp extends Component {
           </Card>
         </View>
         <View style={{ height: 200, marginTop: 10, flexDirection: 'row', justifyContent: 'center' }}>
-          <Button
-            title='Login'
-            icon={{ name: 'sign-in', type: 'font-awesome' }}
-            buttonStyle={[styles.buttonStyle, { width: 100 }]}
-            backgroundColor='rgb(59, 89, 152)'
+        <LinearGradient
+          colors={['#00FFFF', '#17C8FF', '#329BFF', '#4C64FF', '#6536FF', '#8000FF']}
+          start={{x: 0.0, y: 1.0}} end={{x: 1.0, y: 1.0}}
+          style={{ height: 48, width: 200, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <TouchableOpacity
+            style={styles.buttonContainer}
             onPress={this.onPressLogInPage.bind(this)}
-          />
+          >
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ marginLeft: 40, paddingLeft: 70, paddingTop: 7 }}>
+                  <Icon color='#4C64FF' name='sign-in' type='font-awesome' size={25} />
+                </View>
+                <Text style={styles.buttonText}>
+                    LOGIN PAGE
+                </Text>
+              </View>
+          </TouchableOpacity>
+        </LinearGradient>
         </View>
         </KeyboardAvoidingView>
       </ScrollView>
@@ -267,11 +296,37 @@ const styles = {
     textAlign: 'center',
     color: '#333',
     marginBottom: 5,
+  },
+  buttonContainer: {
+      width: 190,
+      height: 40,
+      alignItems: 'center',
+      backgroundColor: 'white'
+  },
+  buttonText: {
+      textAlign: 'center',
+      color: '#4C64FF',
+      padding: 10,
+      marginLeft: -50,
+      marginRight: 50,
+      width: 200
+  },
+  buttonContainer1: {
+      width: 400,
+      height: 40,
+      alignItems: 'center',
+      backgroundColor: 'transparent',
+  },
+  buttonText1: {
+      color: 'white',
+      fontWeight: 'bold',
+      padding: 10,
+      width: 275
   }
 };
 
-const mapStateToProps = ({ signupReducer }) => {
-  return { signupReducer };
+const mapStateToProps = ({ errorAuth }) => {
+  return { errorAuth };
 };
 
 export default connect(mapStateToProps, actions)(SignUp);

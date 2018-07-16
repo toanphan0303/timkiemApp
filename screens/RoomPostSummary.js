@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import { Header } from 'react-native-elements';
-import { material } from 'react-native-typography';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import Listing from '../components/RoomListing';
@@ -19,8 +18,6 @@ const RoomPostSummary = ListingComponent =>
       key: this.props.navigation.state.key,
       });
       this.props.navigation.dispatch(setParamsAction);
-    }
-    componentDidMount() {
       this.setState({
         listing: this.props.userRoom.result
       });

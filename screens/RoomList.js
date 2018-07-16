@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { View } from 'react-native';
 import { connect } from 'react-redux';
-import { Icon, Header, Button } from 'react-native-elements';
-import SearchBar from '../components/SearchTabBar';
+import { Icon } from 'react-native-elements';
 import * as actions from '../actions';
 import Listing from '../components/RoomListing';
 import SearchHeader from '../components/SearchHeader';
@@ -17,12 +16,16 @@ const RoomList = ListingComponent =>
         );
     },
   };
-
+  componentWillMount() {
+    this.setState({
+      listing: this.props.roomsInZips.Items
+    });
+  }
   render() {
     return (
       <View style={{ flex: 1 }}>
         <SearchHeader {...this.props} go='rooms' title='Map' />
-        <ListingComponent {...this.props} listing={this.props.roomsInZips.Items} />
+        <ListingComponent {...this.props} listing={this.state.listing} component='roomList' />
       </View>
     );
   }

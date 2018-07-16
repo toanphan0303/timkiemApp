@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { View, ActivityIndicator, Dimensions } from 'react-native';
+import { View, ActivityIndicator, Dimensions, TouchableOpacity, Text } from 'react-native';
 import { compose, withReducer } from 'recompose';
-import { MapView } from 'expo';
+import { MapView, LinearGradient } from 'expo';
 import { connect } from 'react-redux';
-import { Button } from 'react-native-elements';
+
+import { Icon } from 'react-native-elements';
 import ZipMarker from './ZipMarker';
 import SearchHeader from './SearchHeader';
 import FullScreenSpinner from './HOC/FullScreenSpinner';
@@ -103,23 +104,42 @@ class Map extends Component {
         >
           {this.props.roomsZips && !_.isEmpty(this.props.roomsZips) && this.renderRoomZips()}
         </MapView>
-        <View>
-          <Button
-            small
-            title="Search this area"
-            onPress={this.onButtonSearchPress.bind(this)}
-            loading={this.state.searching}
-            disabled={this.state.searching}
-            icon={{ name: 'search', type: 'font-awsome' }}
-            backgroundColor='#008CBA'
-            buttonStyle={styles.buttonStyle}
-          />
-        </View>
+          <LinearGradient
+            colors={['#FF6666', 'transparent','#FF6666']}
+            start={{x: 0.1, y: 1}} end={{ x: 0.1, y: 0.1}}
+            style={styles.buttonContainer}
+          >
+            <TouchableOpacity
+              style={styles.buttonContainer1}
+              onPress={this.onButtonSearchPress.bind(this)}
+              disabled={this.state.searching}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ marginLeft: 40, paddingLeft: 70, paddingTop: 5 }}>
+                { this.state.searching ?
+                  <Icon color='#4C64FF' name='spinner' type='evilicon' size={25} /> :
+                  <Icon color='#4C64FF' name='search' type='font-awesome' size={25} />
+                }
+                </View>
+                <Text style={styles.buttonText}>
+                    Search this area
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </LinearGradient>
       </FullScreenSpinnerView>
     );
   }
 }
-
+// <Button
+//   small
+//   title="Search this area"
+//   onPress={this.onButtonSearchPress.bind(this)}
+//   loading={this.state.searching}
+//   disabled={this.state.searching}
+//   icon={{ name: 'search', type: 'font-awsome' }}
+//   backgroundColor='#008CBA'
+// />
 const styles = {
   container: {
     flexDirection: 'row',
@@ -129,10 +149,33 @@ const styles = {
   listButton: {
     marginTop: 4,
   },
-  buttonStyle: {
-    shadowOpacity: 1.0,
+  buttonContainer: {
     borderRadius: 5,
+    position: 'absolute',
+    zIndex: 9,
+    marginTop: 600,
+    marginLeft: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 48,
+    width: 200
   },
+  buttonContainer1: {
+      width: 190,
+      height: 40,
+      backgroundColor: 'transparent',
+      alignItems: 'center',
+  },
+  buttonText: {
+      textAlign: 'center',
+      color: '#4C64FF',
+      padding: 10,
+      width: 190,
+      paddingRight: 60,
+      backgroundColor: 'transparent',
+      alignItems: 'center',
+      justifyContent: 'center',
+  }
 };
 const mapStateToProps = ({ roomsZips }) => {
   return { roomsZips };
@@ -147,6 +190,7 @@ const loadingReducer = (value, action) => {
       return false;
   }
 };
+
 const enhance = compose(
     withReducer('loading', 'dispatchLoading', loadingReducer, false),
 );

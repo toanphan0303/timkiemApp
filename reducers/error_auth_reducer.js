@@ -1,12 +1,12 @@
 import {
-  ERROR_LOGIN
+  ERROR_AUTH
 } from '../actions/types';
 
 const INIATIAL_STATE = {};
 
 export default function (state = INIATIAL_STATE, action) {
   switch (action.type) {
-    case LOGIN_SUCCESS:
+    case ERROR_AUTH:
       return action.payload;
     default:
       return state;

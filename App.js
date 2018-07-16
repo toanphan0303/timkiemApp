@@ -133,7 +133,7 @@ const MainNavigator = createBottomTabNavigator({
     && navigation.state.routes[1].params ? navigation.state.routes[1].params.params.showTabBar : true;
     return {
       tabBarOptions: {
-        activeTintColor: '#rgb(90, 200, 250)',
+        activeTintColor: '#FF3399',
         inactiveTintColor: 'gray',
         labelStyle: {
           fontSize: 12
