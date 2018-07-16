@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Icon, Card } from 'react-native-elements';
 import _ from 'lodash';
 import Communications from 'react-native-communications';
+import { LinearGradient } from 'expo';
 import moment from 'moment';
 import {
   ScrollView,
@@ -75,19 +76,19 @@ class RoomDetail extends Component {
       <View style={{ flex: 1, marginTop: 25, backgroundColor: 'white' }}>
         <ScrollView style={styles.container}>
           <View style={styles.content}>
-            <View style={styles.content1}>
+            <LinearGradient colors={['rgba(0,0,0,0.6)', 'transparent']} style={styles.content1}>
               <View style={[styles.contentText]}>
-                <Icon iconStyle={{ paddingRight: 80 }} name='arrow-left' type='material-community' onPress={this.onPressBackIcon.bind(this)} size={35} />
+                <Icon color='#FFFFFF' iconStyle={{ paddingRight: 80 }} name='arrow-left' type='material-community' onPress={this.onPressBackIcon.bind(this)} size={35} />
               </View>
               <View style={[styles.contentText, { marginRight: 30, width: 40 }]}>
                 <RenderEitherLikeIcon
                   {...this.props}
-                  login={this.props.user}
+                  login={this.state.login}
                   index={index}
                   listInfo={listInfo}
                 />
               </View>
-            </View>
+            </LinearGradient>
             <ImageSlider
               images={roomImages}
               customSlide={({ index, item, style, width }) => (
@@ -157,8 +158,9 @@ const styles = StyleSheet.create({
   },
   content1: {
     width: '100%',
-    height: 30,
-    marginTop: 15,
+    height: 50,
+    marginTop: -5,
+    paddingTop: 10,
     backgroundColor: 'transparent',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
     marginTop: 0
   },
   customImage: {
-    width: 400,
+    width: '100%',
     height: 250,
   },
   textInfoStyle: {

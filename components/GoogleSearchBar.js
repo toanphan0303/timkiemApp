@@ -19,7 +19,7 @@ class SearchTabBar extends Component {
   }
   onPressSearch(data) {
     const testValidData = data.split(',');
-    if (this.isSearchInUSA(testValidData[2])) {
+    if (this.isSearchInUSA(testValidData)) {
       const zipValue = this.isSearchZipCode(testValidData[1]);
       if (zipValue) {
         this.setState({ Loaded: true });
@@ -51,11 +51,14 @@ class SearchTabBar extends Component {
   }
 
   isSearchInUSA(value) {
-    const testValue = value.trim();
-    if (testValue !== 'USA') {
-      return false;
+    if (value.length >= 3) {
+      const testValue = value[2].trim();
+      if (testValue !== 'USA') {
+        return false;
+      }
+      return true;
     }
-    return true;
+    return false;
   }
 
   render() {

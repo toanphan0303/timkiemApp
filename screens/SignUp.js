@@ -50,8 +50,8 @@ class SignUp extends Component {
   onPressLogInPage() {
     this.props.navigation.navigate('login');
   }
-  handleFaceBookAuth() {
-    this.props.facebookAuth('signup', () => {
+  handleSocialAuth() {
+    this.props.socialAuth('signup', () => {
       this.props.navigation.navigate('myProfile');
     });
   }
@@ -154,17 +154,12 @@ class SignUp extends Component {
         <View style={{ marginTop: 10 }}>
           <View>
             <Button
-              title='Sign Up With Facebook'
+              title='Sign Up With Facebook or Google'
               icon={{ name: 'facebook-square', type: 'font-awesome' }}
+              icon={{ name: 'google', type: 'font-awesome' }}
               buttonStyle={styles.buttonStyle}
               backgroundColor='rgb(59, 89, 152)'
-              onPress={this.handleFaceBookAuth.bind(this)}
-            />
-            <Button
-              buttonStyle={[styles.buttonStyle,{marginTop: 10 }]}
-              title='Sign Up With Google'
-              icon={{ name: 'google', type: 'font-awesome' }}
-              backgroundColor='rgb(72, 133, 237)'
+              onPress={this.handleSocialAuth.bind(this)}
             />
           </View>
         </View>

@@ -16,7 +16,6 @@ import { AuthSession } from 'expo';
 import {
   ERROR_SIGN_UP,
   SIGN_UP_SUCCESS,
-  SIGN_UP_FACEBOOK_SUCCESS,
   LOGIN_SUCCESS,
   ERROR_LOGIN,
   GET_USER_SUCCESS
@@ -148,14 +147,14 @@ export async function checkUserInDB(email){
 export async function getUserInfo(type, accessToken) {
   if( type === 'email'){
     return await validateUserPool();
-  } else if ( type === 'facebook' ){
+  } else if ( type === 'social' ){
     const reqUrl = cognitoUrl + '/oauth2/userInfo'
     return await axios.get(reqUrl,
       { headers: { Authorization: `Bearer ${accessToken}` } });
   }
 }
 
-export async function getTokenFacebook(authCode) {
+export async function getTokenSocial(authCode) {
   const requestUrl = cognitoUrl + '/oauth2/token';
   const config = {
     headers: {
@@ -172,6 +171,6 @@ export async function getTokenFacebook(authCode) {
   try {
     return await axios.post(requestUrl, qs.stringify(data), config);
   } catch (e) {
-    console.log('error on get token for facebook auth ', e)
+    console.log('error on get token for social auth ', e)
   }
 }

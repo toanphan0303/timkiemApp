@@ -6,7 +6,7 @@ import IconWrapper from './withIconWraper';
 const AbleLikeIcon = (props) => (
   <Icon
     name='heart-outline'
-    color='blue'
+    color='#FFFFFF'
     type='material-community'
     size={35}
     onPress={props.onPress}
@@ -16,7 +16,7 @@ const AbleLikeIcon = (props) => (
 const AbleDisLikeIcon = (props) => (
   <Icon
     name='heart'
-    color='tomato'
+    color='#fb3958'
     type='material-community'
     size={35}
     onPress={props.onPress}

@@ -14,7 +14,7 @@ import {
   registerUserIntoDDB,
   checkUserInDB,
   getUserInfo,
-  getTokenFacebook
+  getTokenSocial
 } from './util/auth_function';
 import { UserPoolId, ClientId, cognitoUrl } from '../key/cognitoKey';
 
@@ -62,21 +62,24 @@ export const signUpCognitoPool = (term, email, password, given_name, family_name
     });
 };
 
-export const facebookAuth = (term, callback) => async(dispatch) => {
+export const socialAuth = (term, callback) => async(dispatch) => {
   const redirectUrl = AuthSession.getRedirectUrl();
   const result = await AuthSession.startAsync({
     authUrl: cognitoUrl + '/login?response_type=code'+
     `&client_id=${ClientId}` +
     `&redirect_uri=${encodeURIComponent(redirectUrl)}`
   });
+  console.log('result ', result)
   if (result.type === 'success') {
     try {
-      const token = await getTokenFacebook(result.params.code);
+      const token = await getTokenSocial(result.params.code);
+      console.log('token ', token)
       if (token.status === 200) {
-        const user = await getUserInfo('facebook', token.data.access_token);
+        const user = await getUserInfo('social', token.data.access_token);
+        console.log('user ', user);
         if (user.data) {
           const { access_token, id_token, refresh_token } = token.data;
-          await onAuthComplete('facebook', access_token, id_token, refresh_token);
+          await onAuthComplete('social', access_token, id_token, refresh_token);
           if (term === 'signup') {
             await registerUserIntoDDB(user.data);
           }
@@ -85,7 +88,7 @@ export const facebookAuth = (term, callback) => async(dispatch) => {
         }
       }
     } catch (e) {
-      console.log('error facebook auth: ', e);
+      console.log('error social auth: ', e);
       dispatch({ type: ERROR_SIGN_UP, payload: e });
     }
   }

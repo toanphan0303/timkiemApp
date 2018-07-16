@@ -22,7 +22,7 @@ const RoomList = ListingComponent =>
     return (
       <View style={{ flex: 1 }}>
         <SearchHeader {...this.props} go='rooms' title='Map' />
-        <ListingComponent {...this.props} listing={this.props.roomsInZips.Items} component />
+        <ListingComponent {...this.props} listing={this.props.roomsInZips.Items} />
       </View>
     );
   }

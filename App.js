@@ -15,6 +15,7 @@ import SignUp from './screens/SignUp';
 import RoomPost from './screens/RoomPost';
 import RoomPostSummary from './screens/RoomPostSummary';
 import RoomFavorite from './screens/RoomFavorite';
+import RoomUpdate from './screens/RoomUpdate';
 
 function slideSide() {
   return ({
@@ -80,41 +81,7 @@ function slideUp() {
     },
   });
 }
-const ProfileTab = createStackNavigator({
-  myProfile: { screen: MyProfile },
-  login: { screen: Login },
-  signup: { screen: SignUp },
-  roomFavorite: { screen: RoomFavorite },
-  roomPost: { screen: RoomPost },
-  roomPostSummary: { screen: RoomPostSummary },
-  roomDetail: { screen: RoomDetail },
-}, {
-  headerMode: 'none',
-  transitionConfig: () => ({
-    transitionSpec: {
-      duration: 750,
-      easing: Easing.out(Easing.poly(4)),
-      timing: Animated.timing,
-    },
-    screenInterpolator: sceneProps => {
-      const { layout, position, scene } = sceneProps;
-      const { index } = scene;
 
-      const height = layout.initHeight;
-      const translateY = position.interpolate({
-        inputRange: [index - 1, index, index + 1],
-        outputRange: [height, 0, 0],
-      });
-
-      const opacity = position.interpolate({
-        inputRange: [index - 1, index - 0.99, index],
-        outputRange: [0, 1, 1],
-      });
-
-      return { opacity, transform: [{ translateY }] };
-    },
-  }),
-});
 const prefixProfile = Platform.OS == 'android' ? 'timkiem://timkiem/mainprofile/' : 'timkiem://mainprofile/';
 const MainNavigator = createBottomTabNavigator({
   rooms: {
@@ -153,6 +120,7 @@ const MainNavigator = createBottomTabNavigator({
       roomPost: { screen: RoomPost },
       roomPostSummary: { screen: RoomPostSummary },
       roomDetail: { screen: RoomDetail },
+      roomUpdate: { screen: RoomUpdate },
     }, {
       headerMode: 'none',
       transitionConfig: slideSide

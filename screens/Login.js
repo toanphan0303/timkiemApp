@@ -3,7 +3,8 @@ import { ScrollView, View } from 'react-native';
 import { connect } from 'react-redux';
 import {
   Button,
-  Card
+  Card,
+  Icon
 } from 'react-native-elements';
 import TimKiemHeader from '../components/TimKiemHeader';
 import * as actions from '../actions';
@@ -21,8 +22,8 @@ class LogIn extends Component {
   onPressSignUpPage() {
     this.props.navigation.navigate('signup');
   }
-  handleFaceBookAuth() {
-    this.props.facebookAuth('login', () => {
+  handleSocialAuth() {
+    this.props.socialAuth('login', () => {
       this.props.navigation.navigate('myProfile');
     });
   }
@@ -35,18 +36,12 @@ class LogIn extends Component {
               <LogInForm {...this.props} />
             </Card>
             <View style={{ marginTop: 20 }}>
+            
               <Button
-                title='Login With Facebook'
-                icon={{ name: 'facebook-square', type: 'font-awesome' }}
+                title='Login With Facebook or Google'
                 backgroundColor='rgb(59, 89, 152)'
                 buttonStyle={styles.buttonStyle}
-                onPress={this.handleFaceBookAuth.bind(this)}
-              />
-              <Button
-                title='Login With Google'
-                icon={{ name: 'google', type: 'font-awesome' }}
-                backgroundColor='rgb(72, 133, 237)'
-                buttonStyle={[styles.buttonStyle, { marginTop: 10 }]}
+                onPress={this.handleSocialAuth.bind(this)}
               />
             </View>
           </View>

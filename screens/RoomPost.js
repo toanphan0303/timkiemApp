@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { ScrollView, View, Text, Picker } from 'react-native';
-import { Header, FormLabel, FormInput, Button, FormValidationMessage } from 'react-native-elements';
-import { material } from 'react-native-typography';
+import { ScrollView, View, Picker } from 'react-native';
+import { FormLabel, FormInput, Button, FormValidationMessage } from 'react-native-elements';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import TimKiemHeader from '../components/TimKiemHeader';
@@ -97,6 +96,7 @@ class RoomPost extends Component {
     return this.setState({ errorDescription: null });
   }
   render() {
+    const { roomType } = this.state;
     const submitEnable = this.ableToSubmit();
     return (
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }} keyboardShouldPersistTaps='handled'>
@@ -134,6 +134,7 @@ class RoomPost extends Component {
             <Picker.Item label="Regular room" value="regular" />
             <Picker.Item label="Master room" value="master" />
             <Picker.Item label="Entire house" value="house" />
+            <Picker.Item label="Private unit" value="private" />
           </Picker>
           <FormLabel>Price</FormLabel>
           <FormInput

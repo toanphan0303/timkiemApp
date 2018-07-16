@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { ScrollView, View, Text, TouchableOpacity, Dimensions, Image, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, Dimensions, Image, StyleSheet, Alert } from 'react-native';
 import ImageSlider from 'react-native-image-slider';
 import moment from 'moment';
-import { Card } from 'react-native-elements';
+import { Card, Icon } from 'react-native-elements';
 import { material } from 'react-native-typography';
 import { connect } from 'react-redux';
+import { LinearGradient } from 'expo';
 import EitherLikeIcon from './HOC/EitherLikeIcon';
 import withFullScreenSpinnerView from './HOC/FullScreenSpinner';
 
@@ -41,7 +42,8 @@ class RoomListing extends Component {
     listing: [],
     roomLikes: [],
     user: {},
-    loading: false
+    loading: false,
+    keyId: null
   }
   componentDidMount = async() => {
     const { user } = this.props;
@@ -66,11 +68,42 @@ class RoomListing extends Component {
       roomLikes: nextProps.userInfo.room_likes,
       user
     });
+    if (!_.isEqual(nextProps.listing, this.state.listing)) {
+      this.setState({ listing: nextProps.listing });
+    }
   }
   onPressImage(zip, id) {
-    this.setState({ loading: true });
+    this.setState({ loading: true, keyId: id });
     this.props.fetchDetailRoom(zip, id, () => {
       this.props.navigation.navigate('roomDetail');
+      this.setState({ loading: false, keyId: null });
+    });
+  }
+  onPressEditIcon = async(zip, id) => {
+    this.setState({ loading: true, keyId: id });
+    this.props.fetchDetailRoom(zip, id, () => {
+      this.props.navigation.navigate('roomUpdate');
+      this.setState({ loading: false, keyId: null });
+    });
+  }
+  onPressDeleteIcon(user, id, email, roomIndex, zip, likeIndex) {
+    Alert.alert(
+      'Delete this post',
+      'Are you sure you want to delete this room post',
+    [
+      { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+      { text: 'OK', onPress: async () => await this.onPressDelete(user, id, email, roomIndex, zip, likeIndex) }
+    ],
+  { cancelable: false }
+);
+  }
+  onPressDelete = async (user, id, email, roomIndex, zip, likeIndex) => {
+    this.setState({ loading: true, keyId: id });
+    await this.props.romvePostRoom(user, id, email, roomIndex, zip);
+    if (likeIndex >= 0) {
+      await this.props.romveLikeRoom(user, email, likeIndex);
+    }
+    await this.props.getPostRoom(user, email, () => {
       this.setState({ loading: false });
     });
   }
@@ -91,30 +124,50 @@ class RoomListing extends Component {
         </Card>
       );
     }
-    return listing.map(({ id, images, room: { price, type }, zip, timeStamp, expire, email, user }) => {
+    return listing.map(({ id, images, room: { price, type }, zip, timeStamp, expire, email, user }, roomIndex) => {
       const creatorEmail = email;
       const roomImages = !_.isEmpty(images) ? images : [defaultImage];
       const listInfo = { id, creatorEmail, price, type, zip, expire };
       const date = moment(timeStamp * 1000).format('MM-DD-YYYY');
-      const index = _.findIndex(roomLikes, { roomId: id })
+      const likeIndex = _.findIndex(roomLikes, { roomId: id })
       return (
         <View style={styles.container} key={id}>
           <FullScreenSpinnerView
             style={{ flex: 1, backgroundColor: 'white' }}
-            spinner={this.state.loading}
+            spinner={this.state.loading && this.state.keyId === id}
           >
-          <View style={styles.content1}>
-            <Text style={[styles.contentText, material.body2, {marginLeft: 20 }]}>List: {date}</Text>
-            <View style={[styles.contentText, { marginRight: 30, width: 40 }]}>
-              <RenderEitherLikeIcon
-                login={this.state.login}
-                index={index}
-                {...this.props}
-                listInfo={listInfo}
-                {...this.state}
-              />
-            </View>
-          </View>
+            <LinearGradient colors={['rgba(0,0,0,0.6)', 'transparent']} style={styles.content1}>
+              <Text style={[styles.contentText, material.body2White, { marginLeft: 20, paddingTop: 5 }]}>List: {date}</Text>
+              { this.props.user.sub === user && this.props.component === 'myPost' &&
+                <View style={{ flexDirection: 'row', marginLeft: 50, paddingTop: 5 }}>
+                  <View style={{ marginRight: 20 }}>
+                    <Icon
+                      name='delete'
+                      type='font-awsome'
+                      color='#FFFFFF'
+                      onPress={this.onPressDeleteIcon.bind(this, user, id, email, roomIndex, zip, likeIndex)}
+                    />
+                  </View>
+                  <View style={{ marginLeft: 10 }}>
+                    <Icon
+                      name='edit'
+                      type='font-awsome'
+                      color='#FFFFFF'
+                      onPress={this.onPressEditIcon.bind(this, zip, id)}
+                    />
+                  </View>
+                </View>
+                }
+              <View style={[styles.contentText, { marginRight: 30, width: 40 }]}>
+                <RenderEitherLikeIcon
+                  login={this.state.login}
+                  index={likeIndex}
+                  {...this.props}
+                  listInfo={listInfo}
+                  {...this.state}
+                />
+              </View>
+          </LinearGradient>
           <ImageSlider
             images={roomImages}
             customSlide={({ index, item, style, width }) => (
@@ -132,13 +185,13 @@ class RoomListing extends Component {
               </TouchableOpacity>
             )}
           />
-          <View style={styles.content2}>
+          <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} style={styles.content2}>
             <View style={{ flexDirection: 'column', paddingLeft: 20 }}>
-              <Text style={[styles.contentText, material.button, { marginTop: 5, fontWeight: 'bold', fontSize: 16 }]}>$Price: {price}</Text>
-              <Text style={material.body2}>Zip Code: {zip}</Text>
+              <Text style={[styles.contentText, material.buttonWhite, { marginTop: 5, fontWeight: 'bold', fontSize: 16 }]}>$Price: {price}</Text>
+              <Text style={material.body2White}>Zip Code: {zip}</Text>
             </View>
-            <Text style={[material.button, { fontWeight: 'bold', fontSize: 16, marginRight: 20, paddingTop: 10 }]}>Room Type: {type}</Text>
-          </View>
+            <Text style={[material.buttonWhite, { fontWeight: 'bold', fontSize: 16, marginRight: 20, paddingTop: 10 }]}>Room Type: {type}</Text>
+          </LinearGradient>
           </FullScreenSpinnerView>
         </View>
       );
@@ -157,12 +210,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    height: 205
+    height: 255
   },
   content1: {
+    height: 50,
     width: '100%',
-    height: 30,
-    marginTop: 15,
+    marginTop: 2,
+    paddingTop: 10,
     backgroundColor: 'transparent',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -172,14 +226,14 @@ const styles = StyleSheet.create({
   content2: {
     width: '100%',
     height: 70,
-    marginTop: 140,
+    marginTop: 190,
+    marginBottom: 10,
     backgroundColor: 'transparent',
     flexDirection: 'row',
     justifyContent: 'space-between',
     position: 'absolute',
     zIndex: 5,
   },
-
   contentText: {
     width: 150,
     backgroundColor: 'transparent'
@@ -191,8 +245,8 @@ const styles = StyleSheet.create({
     marginTop: 0
   },
   customImage: {
-    width: 400,
-    height: 200,
+    width: '100%',
+    height: 250,
   },
 });
 const mapStateToProps = ({ user, userInfo }) => {
