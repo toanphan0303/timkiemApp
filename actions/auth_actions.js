@@ -16,7 +16,8 @@ import {
   registerUserIntoDDB,
   checkUserInDB,
   getUserInfo,
-  getTokenSocial
+  getTokenSocial,
+  signOutSocial
 } from './util/auth_function';
 import { UserPoolId, ClientId, cognitoUrl } from '../key/cognitoKey';
 
@@ -80,14 +81,23 @@ export const socialAuth = (term, callback) => async(dispatch) => {
           const { access_token, id_token, refresh_token } = token.data;
           await onAuthComplete('social', access_token, id_token, refresh_token, dispatch);
           if (term === 'signup') {
-            if (user && user.data){
+            if (user && user.data) {
               const existedUser = await checkUserInDB(user.data.email);
               if (!_.isEmpty(existedUser)) {
-                await signOut();
-                return dispatch({ type: ERROR_AUTH, payload: { message: "Email already exist in Database" }});
+                await signOutSocial();
+                await invalidateToken();
+                return dispatch({ type: ERROR_AUTH, payload: { message: 'Email already exist in Database' }});
               }
             }
             await registerUserIntoDDB(user.data, dispatch);
+          }
+          if (user && user.data) {
+            const existedUser = await checkUserInDB(user.data.email);
+            if (_.isEmpty(existedUser)) {
+              await signOutSocial();
+              await invalidateToken();
+              return dispatch({ type: ERROR_AUTH, payload: { message: 'Please sign up first' } });
+            }
           }
           dispatch({ type: LOGIN_SUCCESS, payload: user.data });
           dispatch({ type: ERROR_AUTH, payload: {} });
@@ -112,13 +122,8 @@ export const signOut = () => async (dispatch) => {
     dispatch({ type: LOGIN_SUCCESS, payload: {} });
     dispatch({ type: ERROR_AUTH, payload: {} });
   } else {
-    const redirectUrl = AuthSession.getRedirectUrl();
     try {
-      await AuthSession.startAsync({
-        authUrl:   cognitoUrl + '/logout?' +
-        `&client_id=${ClientId}` +
-        `&logout_uri=${encodeURIComponent(redirectUrl)}`
-      });
+      await signOutSocial();
       await invalidateToken();
       dispatch({ type: LOGIN_SUCCESS, payload: {} });
       dispatch({ type: ERROR_AUTH, payload: {} });

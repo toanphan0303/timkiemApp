@@ -159,7 +159,14 @@ export async function getUserInfo(type, accessToken) {
       { headers: { Authorization: `Bearer ${accessToken}` } });
   }
 }
-
+export async function signOutSocial(){
+  const redirectUrl = AuthSession.getRedirectUrl();
+  await AuthSession.startAsync({
+    authUrl:   cognitoUrl + '/logout?' +
+    `&client_id=${ClientId}` +
+    `&logout_uri=${encodeURIComponent(redirectUrl)}`
+  });
+}
 export async function getTokenSocial(authCode) {
   const requestUrl = cognitoUrl + '/oauth2/token';
   const config = {
