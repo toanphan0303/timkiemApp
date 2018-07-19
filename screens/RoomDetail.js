@@ -63,12 +63,15 @@ class RoomDetail extends Component {
   onPressImage() {
     console.log('image press');
   }
+  getArrayImage(images) {
+    return _.map(images, 'Location');
+  }
   render() {
     const roomInfo = this.props.roomDetail.Items[0];
     const { roomLikes } = this.state;
     const { images, address, zip, phone, description, room: { price, type }, id, expire, email, timeStamp } = roomInfo;
     const creatorEmail = email;
-    const roomImages = !_.isEmpty(images) ? images : [defaultImage];
+    const roomImages = !_.isEmpty(images) ? this.getArrayImage(images) : [defaultImage];
     const index = _.findIndex(roomLikes, { roomId: id });
     const listInfo = { id, creatorEmail, price, type, zip, expire };
     const date = moment(timeStamp * 1000).format('MM-DD-YYYY');

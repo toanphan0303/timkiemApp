@@ -25,13 +25,17 @@ class RoomPost extends Component {
     errorPrice: null,
     loading: false
   }
-  onPressSubmit() {
+  onPressSubmit = async() => {
     this.setState({ loading: true })
     const { email, sub } = this.props.user;
     const { roomType, description, phone, zip, price } = this.state;
-    this.props.postRoom(sub, email, description, phone, zip, roomType, price, () => {
-      this.setState({ loading: false })
-      this.props.navigation.navigate('myProfile');
+    const result = await this.props.postRoom(sub, email, description, phone, zip, roomType, price, () => {
+      return;
+    });
+    const { roomId } = result;
+    await this.props.fetchDetailRoom(zip, roomId, () => {
+      this.setState({ loading: false });
+      this.props.navigation.navigate('jobs');
     });
   }
   ableToSubmit() {

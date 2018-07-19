@@ -131,15 +131,6 @@ class Map extends Component {
     );
   }
 }
-// <Button
-//   small
-//   title="Search this area"
-//   onPress={this.onButtonSearchPress.bind(this)}
-//   loading={this.state.searching}
-//   disabled={this.state.searching}
-//   icon={{ name: 'search', type: 'font-awsome' }}
-//   backgroundColor='#008CBA'
-// />
 const styles = {
   container: {
     flexDirection: 'row',

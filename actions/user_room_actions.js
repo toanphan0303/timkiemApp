@@ -1,5 +1,4 @@
 import axios from 'axios';
-import _ from 'lodash';
 
 import {
   USER_ADD_ROOM,
@@ -11,10 +10,11 @@ const BASE_URL = 'https://uejssrxsr1.execute-api.us-east-1.amazonaws.com/prod/us
 
 export const postRoom = (userId, email, desciption, phone, zip, type, price, callback) => async (dispatch) => {
   const requestURL = BASE_URL + '/addroom';
+  const desc = desciption.replace(/\n/g, ' ');
   const body = {
     userId,
     email,
-    desc: desciption,
+    desc,
     phone,
     zip,
     price,
@@ -23,13 +23,14 @@ export const postRoom = (userId, email, desciption, phone, zip, type, price, cal
   try {
     const { data } = await axios.post(requestURL, body);
     if (data.errorMessage) {
-      console.error(data.errorMessage);
+      console.log(data.errorMessage);
     } else {
       dispatch({ type: USER_ADD_ROOM, payload: data });
       callback();
+      return data;
     }
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
 };
 
@@ -39,13 +40,13 @@ export const getPostRoom = (userId, email, callback) => async (dispatch) => {
   try {
     const { data } = await axios.get(requestUrl);
     if (data.errorMessage) {
-      console.error(data.errorMessage);
+      console.log(data.errorMessage);
     } else {
       dispatch({ type: FETCH_USER_POST_ROOM, payload: data });
       callback();
     }
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
 };
 
@@ -61,7 +62,6 @@ export const addLikeRoom = (userId, roomId, userEmail, expire, price, type, zip,
     zip,
     creatorEmail
   };
-  console.log(body)
   try {
     const { data } = await axios.post(requestUrl, body);
     if (data.errorMessage) {
@@ -70,7 +70,7 @@ export const addLikeRoom = (userId, roomId, userEmail, expire, price, type, zip,
       return data;
     }
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
 };
 
@@ -89,7 +89,7 @@ export const romveLikeRoom = (userId, email, index) => async (dispatch) => {
       return data;
     }
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
 };
 
@@ -104,12 +104,13 @@ export const getLikeRooms = (userId, email, callback) => async (dispatch) => {
       callback();
     }
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
 };
 
-export const updateRoom = (roomId, email, desc, phone, zip, type, price) => async (dispatch) => {
+export const updateRoom = (roomId, email, desciption, phone, zip, type, price) => async (dispatch) => {
   const requestURL = BASE_URL + '/updateroom';
+  const desc = desciption.replace(/\n/g, ' ');
   const body = {
     roomId,
     email,
@@ -121,13 +122,14 @@ export const updateRoom = (roomId, email, desc, phone, zip, type, price) => asyn
   };
   try {
     const { data } = await axios.post(requestURL, body);
+    console.log(data);
     if (data.errorMessage) {
-      console.error(data.errorMessage);
+      console.log(data.errorMessage);
     } else {
       dispatch({ type: USER_ADD_ROOM, payload: data });
     }
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
 };
 
@@ -140,7 +142,6 @@ export const romvePostRoom = (userId, roomId, email, index, zip) => async (dispa
     roomId,
     zip
   };
-  console.log('body', body);
   try {
     const { data } = await axios.post(requestUrl, body);
     if (data.errorMessage) {
@@ -149,6 +150,21 @@ export const romvePostRoom = (userId, roomId, email, index, zip) => async (dispa
       return data;
     }
   } catch (e) {
-    console.error(e);
+    console.log(e);
+  }
+};
+
+export const uploadImage = (roomId, zip, email, images) => async(dispatch) => {
+  const requestUrl = BASE_URL + '/addimages';
+  const body = {
+    roomId,
+    zip,
+    email,
+    images
+  };
+  try {
+    return axios.post(requestUrl, body);
+  } catch (e) {
+    console.log('error posting image', e);
   }
 };

@@ -103,6 +103,7 @@ const MainNavigator = createBottomTabNavigator({
       transitionConfig: slideUp
     })
   },
+  jobs: { screen: Jobs },
   myProfile: {
     navigationOptions: {
       title: 'My Profile',

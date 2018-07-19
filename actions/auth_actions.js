@@ -143,10 +143,13 @@ export const getUser = (accessToken) => async(dispatch) => {
   const typeLogin = await AsyncStorage.getItem('typeLogin');
   try {
     const userInfo = await getUserInfo(typeLogin, accessToken);
-    dispatch({ type: LOGIN_SUCCESS, payload: userInfo.data });
-    dispatch({ type: ERROR_AUTH, payload: {} });
+    if (userInfo && userInfo.data) {
+      dispatch({ type: LOGIN_SUCCESS, payload: userInfo.data });
+      dispatch({ type: ERROR_AUTH, payload: {} });
+    }
   } catch (e) {
     console.log('error when get user', e);
-    dispatch({ type: ERROR_AUTH, payload: e });
+    // get exchange token here
+    dispatch({ type: ERROR_AUTH, payload: {} });
   }
 };

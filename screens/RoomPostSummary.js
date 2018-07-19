@@ -29,7 +29,6 @@ const RoomPostSummary = ListingComponent =>
     }
     render() {
       const { listing } = this.state;
-      console.log('listing', listing);
       return (
         <View style={{ flex: 1 }}>
           <TimKiemHeader {...this.props} parentScreen='myProfile' />

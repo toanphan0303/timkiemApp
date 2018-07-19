@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { ScrollView, View, Text, TouchableOpacity, Dimensions, Image, StyleSheet, Alert } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  StyleSheet,
+  Alert
+} from 'react-native';
 import ImageSlider from 'react-native-image-slider';
 import moment from 'moment';
 import { Card, Icon } from 'react-native-elements';
@@ -30,7 +39,7 @@ const RoomPostSummary = (props) => {
       <TouchableOpacity
         onPress={() => props.navigation.navigate('roomPost')}
       >
-        <Text style={[material.body, { fontWeight: 'bold', fontSize: 18, color: '6633FF' }]}>Click to post room</Text>
+        <Text style={[material.body, { fontWeight: 'bold', fontSize: 18, color: '#6633FF' }]}>Click to post room</Text>
       </TouchableOpacity>
     </View>
   );
@@ -107,6 +116,9 @@ class RoomListing extends Component {
       this.setState({ loading: false });
     });
   }
+  getArrayImage(images) {
+    return _.map(images, 'Location');
+  }
 
   renderListing() {
     const { listing, parentCom, roomLikes } = this.state;
@@ -126,10 +138,10 @@ class RoomListing extends Component {
     }
     return listing.map(({ id, images, room: { price, type }, zip, timeStamp, expire, email, user }, roomIndex) => {
       const creatorEmail = email;
-      const roomImages = !_.isEmpty(images) ? images : [defaultImage];
+      const roomImages = !_.isEmpty(images) ? this.getArrayImage(images) : [defaultImage];
       const listInfo = { id, creatorEmail, price, type, zip, expire };
       const date = moment(timeStamp * 1000).format('MM-DD-YYYY');
-      const likeIndex = _.findIndex(roomLikes, { roomId: id })
+      const likeIndex = _.findIndex(roomLikes, { roomId: id });
       return (
         <View style={styles.container} key={id}>
           <FullScreenSpinnerView
